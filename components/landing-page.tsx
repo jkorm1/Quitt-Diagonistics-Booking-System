@@ -148,6 +148,20 @@ export default function LandingPage() {
           </AnimatedSection>
         </div>
 
+        <div className="hidden md:block">
+          <div className="relative w-full h-96 mb-6">
+            <CarAnimation>
+              <Image
+                src="/logoanimate.png"
+                alt="Quitt Diagnostics"
+                fill
+                className="object-contain"
+                priority
+              />
+            </CarAnimation>
+          </div>
+        </div>
+
         {/* Full-width Grid with Animated Cards */}
         <ServicesShowcase
           services={[
