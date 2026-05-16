@@ -166,9 +166,19 @@ export async function getAvailableSlots(
 
     const maxConcurrency = (deptData[0] as any).max_concurrency;
 
-    // 2. Define business hours (8 AM to 4 PM)
-    const startHour = 8;
-    const endHour = 16;
+    // 2. Determine operating hours based on day of week
+    const appointmentDate = new Date(date);
+    const dayOfWeek = appointmentDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    // Quitt Diagnostics hours: Monday-Saturday 24 hours, Sunday 2:00 PM - Midnight
+    let startHour = 0; // Default start hour
+    let endHour = 24; // Default end hour
+    
+    if (dayOfWeek === 0) { // Sunday
+      startHour = 14; // 2:00 PM
+      endHour = 24; // Midnight
+    }
+    
     const slots: SlotInfo[] = [];
 
     for (let hour = startHour; hour < endHour; hour++) {

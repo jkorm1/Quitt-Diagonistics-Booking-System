@@ -40,10 +40,16 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Seed Initial Data
+-- Seed Initial Data for Quitt Diagnostics
 INSERT INTO departments (name, max_concurrency, allows_home_service) VALUES
-('Laboratory', 5, TRUE),
-('Imaging', 2, FALSE),
-('General Consultation', 3, FALSE);
+('Ultrasound Scans', 3, FALSE),
+('Fluoroscopy Studies', 2, FALSE),
+('Mammogram', 2, FALSE),
+('Laboratory Services', 5, TRUE),
+('X-rays of Any Part', 3, FALSE),
+('MRI & CT Scan', 2, FALSE);
+('General Consultation', 1, FALSE);
+
 
 -- Seed Admin User (password: admin123)
 INSERT INTO users (username, password_hash, role) VALUES

@@ -47,20 +47,56 @@ export default function LandingPage() {
       <section className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-400 rounded-full opacity-10 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400 rounded-full opacity-10 blur-3xl"></div>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+
+        {/* Navigation Bar */}
+        <nav className="absolute top-0 left-0 right-0 z-20 px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-6xl mx-auto flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="h-10 w-10 rounded-full overflow-hidden bg-white shadow-md">
+                <img
+                  src="/logo.png"
+                  alt="Quitt Diagnostics Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="text-white font-bold text-lg hidden sm:block">
+                Quitt Diagnostics
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleBookingClick}
+                className="bg-yellow-400 hover:bg-yellow-500 text-blue-950 font-semibold px-4 py-2 rounded-lg text-sm sm:text-base transition-colors"
+              >
+                Book Appointment
+              </button>
+              <button
+                onClick={() => setShowAdminModal(true)}
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-lg text-sm sm:text-base transition-colors backdrop-blur-sm border border-white/20"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span className="hidden sm:inline">Staff Login</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="text-white">
-              <div className="mb-8">
-                <div className="inline-block mb-6">
-                  <div className="h-20 w-20 sm:h-14 sm:w-14 rounded-full overflow-hidden bg-white shadow-md">
-                    <img
-                      src="/logo.png"
-                      alt="Quitt Diagnostics Logo"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-              </div>
               <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight text-balance">
                 Excellence in Healthcare,
                 <br />
@@ -166,13 +202,13 @@ export default function LandingPage() {
         <ServicesShowcase
           services={[
             {
-              title: "Laboratory",
-              tag: "Advanced Diagnostics",
-              desc: "Comprehensive blood tests, urinalysis, and genetic testing using state-of-the-art equipment for accurate results.",
+              title: "Ultrasound Scans",
+              tag: "Imaging",
+              desc: "Imaging using sound waves to visualize internal organs for accurate diagnosis.",
               items: [
-                "24-hour turnaround",
-                "Expert pathologists",
-                "Digital reports",
+                "Advanced ultrasound technology",
+                "Expert radiologists",
+                "Same-day reports available",
               ],
               icon: CheckCircle,
               dir: "left",
@@ -186,13 +222,13 @@ export default function LandingPage() {
                 "https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&q=80",
             },
             {
-              title: "Imaging",
-              tag: "Radiology & Scans",
-              desc: "High-resolution X-rays, CT scans, MRIs, and ultrasounds for precise internal diagnosis and treatment planning.",
+              title: "Fluoroscopy Studies",
+              tag: "Real-time Imaging",
+              desc: "Real-time X-ray imaging for diagnostic procedures with high precision.",
               items: [
-                "Latest technology",
-                "Radiologist on-site",
-                "Same-day reports",
+                "State-of-the-art equipment",
+                "Radiologist supervision",
+                "Quick results",
               ],
               icon: Heart,
               dir: "right",
@@ -203,16 +239,16 @@ export default function LandingPage() {
               revBg: "#991b1b",
               shape: "cross",
               image:
-                "https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&q=80",
+                "https://images.unsplash.com/photo-1631558554770-74e921444006?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YSUyMGJsYWNrJTIwZmx1cm9zY29weXxlbnwwfHwwfHx8MA%3D%3D",
             },
             {
-              title: "Cardiology",
-              tag: "Heart Health",
-              desc: "Expert cardiac care including ECGs, stress tests, and echocardiograms for comprehensive heart health assessment.",
+              title: "Mammogram",
+              tag: "Breast Imaging",
+              desc: "Breast imaging for cancer screening and diagnosis with compassionate care.",
               items: [
-                "Cardiologists available",
-                "Non-invasive testing",
-                "Preventive care",
+                "Female technicians available",
+                "Private screening rooms",
+                "Quick appointment scheduling",
               ],
               icon: Heart,
               dir: "left",
@@ -226,13 +262,13 @@ export default function LandingPage() {
                 "https://media.istockphoto.com/id/1321166286/photo/female-doctor-listens-to-a-patients-lungs-during-a-medical-exam.webp?a=1&b=1&s=612x612&w=0&k=20&c=xRGZT-3z-OXzNwuOlr3I77103P6yGu-ehYkBhE2waDg=",
             },
             {
-              title: "Neurology",
-              tag: "Brain & Nerves",
-              desc: "Specialized care for neurological conditions with advanced EEG and nerve conduction studies for accurate diagnosis.",
+              title: "Laboratory Services",
+              tag: "Diagnostic Testing",
+              desc: "Comprehensive blood, urine, and other sample testing with accurate results.",
               items: [
-                "Neurologists on staff",
-                "Advanced diagnostics",
-                "Personalized treatment",
+                "24-hour turnaround",
+                "Expert pathologists",
+                "Digital reports",
               ],
               icon: Users,
               dir: "right",
@@ -246,13 +282,13 @@ export default function LandingPage() {
                 "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGElMjBibGFjayUyMG5ldXJvbG9naXN0fGVufDB8fDB8fHww",
             },
             {
-              title: "Orthopedics",
-              tag: "Bones & Joints",
-              desc: "Comprehensive bone and joint care including X-rays, MRIs, and physical therapy consultations for optimal recovery.",
+              title: "X-rays of Any Part",
+              tag: "Radiographic Imaging",
+              desc: "General radiographic imaging for bones and tissues with high-quality results.",
               items: [
-                "Orthopedic surgeons",
-                "Sports medicine",
-                "Rehabilitation services",
+                "Digital X-ray technology",
+                "Radiologist on-site",
+                "Same-day reports",
               ],
               icon: Users,
               dir: "left",
@@ -266,13 +302,13 @@ export default function LandingPage() {
                 "https://media.istockphoto.com/id/1185470154/photo/orthopedic-doctor-examines-injured-soldiers-ankle.webp?a=1&b=1&s=612x612&w=0&k=20&c=xk3HBuyDjYm54hzVyRYEWRRLic3sTLa4o4ceSNBgxu4=",
             },
             {
-              title: "General Consultation",
-              tag: "Primary Care",
-              desc: "Expert medical guidance and advice from experienced physicians for all your health concerns and preventive care.",
+              title: "MRI & CT Scan",
+              tag: "Advanced Imaging",
+              desc: "Advanced imaging for internal structures and organs with detailed analysis.",
               items: [
-                "Experienced doctors",
-                "Holistic approach",
-                "Follow-up care",
+                "Latest MRI & CT technology",
+                "Expert radiologists",
+                "Detailed reports",
               ],
               icon: CheckCircle,
               dir: "right",
@@ -283,7 +319,7 @@ export default function LandingPage() {
               revBg: "#4338ca",
               shape: "circle",
               image:
-                "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
+                "https://plus.unsplash.com/premium_photo-1683134693632-8c72cae46997?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bXJpJTIwJTI2Q1R8ZW58MHx8MHx8fDA%3D",
             },
           ]}
         />
@@ -346,13 +382,15 @@ export default function LandingPage() {
                 desc: "Experience excellence in every interaction.",
               },
             ].map((feature, i) => (
-              <div key={i} className="flex gap-4 text-white">
-                <feature.icon className="w-8 h-8 text-yellow-400 flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-blue-100">{feature.desc}</p>
+              <AnimatedSection key={i} delay={i * 0.1}>
+                <div className="flex gap-4 text-white">
+                  <feature.icon className="w-8 h-8 text-yellow-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                    <p className="text-blue-100">{feature.desc}</p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
@@ -379,46 +417,62 @@ export default function LandingPage() {
       {/* Testimonials */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 text-blue-900">
-              What Patients Say
-            </h2>
-          </div>
+          <AnimatedSection>
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold mb-4 text-blue-900">
+                What Patients Say
+              </h2>
+            </div>
+          </AnimatedSection>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                name: "Sarah Ahmed",
+                name: "Stephanie Peprah",
                 text: "Professional and efficient service. Highly recommended!",
+                image:
+                  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
               },
               {
-                name: "Mohammed Hassan",
+                name: "Joseph Korm",
                 text: "Best diagnostic experience I&apos;ve had. Very satisfied.",
+                image:
+                  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
               },
               {
                 name: "Aisha Khan",
                 text: "Amazing staff and modern facilities. Five stars!",
+                image:
+                  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80",
               },
             ].map((testimonial, i) => (
-              <div
-                key={i}
-                className="hospital-card p-6 rounded-2xl border-2 border-blue-200 hover:border-blue-400 transition-all"
-              >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, j) => (
-                    <Star
-                      key={j}
-                      className="w-5 h-5 fill-blue-600 text-blue-600"
-                    />
-                  ))}
+              <AnimatedSection key={i} delay={i * 0.15}>
+                <div className="hospital-card p-6 rounded-2xl border-2 border-blue-200 hover:border-blue-400 transition-all">
+                  <div className="flex justify-center mb-4">
+                    <div className="h-20 w-20 rounded-full overflow-hidden border-4 border-blue-100 shadow-md">
+                      <img
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-1 mb-4">
+                    {[...Array(5)].map((_, j) => (
+                      <Star
+                        key={j}
+                        className="w-5 h-5 fill-blue-600 text-blue-600"
+                      />
+                    ))}
+                  </div>
+                  <p className="mb-4 italic text-gray-700 text-center">
+                    "{testimonial.text}"
+                  </p>
+                  <p className="font-semibold text-blue-900 text-center">
+                    {testimonial.name}
+                  </p>
                 </div>
-                <p className="mb-4 italic text-gray-700">
-                  "{testimonial.text}"
-                </p>
-                <p className="font-semibold text-blue-900">
-                  {testimonial.name}
-                </p>
-              </div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
@@ -426,33 +480,310 @@ export default function LandingPage() {
 
       {/* CTA Footer */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto hospital-card p-12 rounded-[2rem] text-center border border-slate-200 bg-white/95 shadow-[0_25px_60px_rgba(15,23,42,0.08)]">
-          <h2 className="text-4xl font-bold mb-4 text-slate-900">
-            Ready to Book Your Appointment?
-          </h2>
-          <p className="text-xl mb-8 text-slate-700">
-            Join thousands of satisfied patients who trust Hospital Care for
-            their healthcare needs.
-          </p>
-          <button
-            onClick={handleBookingClick}
-            className="px-10 py-4 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-semibold text-lg transition-all shadow-lg shadow-sky-500/30"
-          >
-            Start Booking Now
-          </button>
-        </div>
+        <AnimatedSection>
+          <div className="max-w-4xl mx-auto hospital-card p-12 rounded-[2rem] text-center border border-slate-200 bg-white/95 shadow-[0_25px_60px_rgba(15,23,42,0.08)]">
+            <h2 className="text-4xl font-bold mb-4 text-slate-900">
+              Ready to Book Your Appointment?
+            </h2>
+            <p className="text-xl mb-8 text-slate-700">
+              Join thousands of satisfied patients who trust Hospital Care for
+              their healthcare needs.
+            </p>
+            <button
+              onClick={handleBookingClick}
+              className="px-10 py-4 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-semibold text-lg transition-all shadow-lg shadow-sky-500/30"
+            >
+              Start Booking Now
+            </button>
+          </div>
+        </AnimatedSection>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-slate-950 text-slate-300">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-slate-400">
-            © 2026 Hospital Care. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm text-sky-300 transition-colors">
-            <button>Privacy</button>
-            <button>Terms</button>
-            <button>Contact</button>
+      <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            {/* Logo and About */}
+            <div className="col-span-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-12 w-12 rounded-full overflow-hidden bg-white shadow-md">
+                  <img
+                    src="/logo.png"
+                    alt="Quitt Diagnostics Logo"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">
+                    Quitt Diagnostics
+                  </h3>
+                  <p className="text-xs text-sky-400">
+                    Excellence in Healthcare
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm text-slate-400 mb-4">
+                Providing world-class diagnostic services with transparent,
+                convenient, and compassionate care.
+              </p>
+              <div className="flex gap-3">
+                <div className="h-8 w-8 rounded-full bg-sky-600 flex items-center justify-center text-white text-xs">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                  </svg>
+                </div>
+                <div className="h-8 w-8 rounded-full bg-sky-600 flex items-center justify-center text-white text-xs">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect
+                      x="2"
+                      y="2"
+                      width="20"
+                      height="20"
+                      rx="5"
+                      ry="5"
+                    ></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                  </svg>
+                </div>
+                <div className="h-8 w-8 rounded-full bg-sky-600 flex items-center justify-center text-white text-xs">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Our Services
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Book Appointment
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Patient Portal
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Our Services */}
+            <div>
+              <h3 className="text-white font-semibold mb-4">Our Services</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Laboratory Services
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Radiology & Imaging
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Cardiology
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Neurology
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    Orthopedics
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contact Information */}
+            <div>
+              <h3 className="text-white font-semibold mb-4">Contact Us</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-full bg-sky-600/20 flex items-center justify-center flex-shrink-0">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-sky-400"
+                    >
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-slate-400">
+                      P.O. Box KS 15662, Kumasi, Ghana
+                    </p>
+                    <p className="text-slate-400">Ashanti Region</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-sky-600/20 flex items-center justify-center flex-shrink-0">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-sky-400"
+                    >
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <a
+                      href="tel:0501259203"
+                      className="text-slate-400 hover:text-sky-400 transition-colors"
+                    >
+                      0501259203
+                    </a>
+                    <span className="text-slate-500 mx-1">/</span>
+                    <a
+                      href="tel:0322395333"
+                      className="text-slate-400 hover:text-sky-400 transition-colors"
+                    >
+                      0322395333
+                    </a>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-sky-600/20 flex items-center justify-center flex-shrink-0">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-sky-400"
+                    >
+                      <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                  </div>
+                  <a
+                    href="mailto:info@quittdiagnostics.com"
+                    className="text-slate-400 hover:text-sky-400 transition-colors"
+                  >
+                    info@quittdiagnostics.com
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-slate-400">
+              © 2026 Quitt Diagnostics. All rights reserved.
+            </p>
+            <div className="flex gap-6 text-sm text-sky-300 transition-colors">
+              <button className="hover:text-sky-200 transition-colors">
+                Privacy Policy
+              </button>
+              <button className="hover:text-sky-200 transition-colors">
+                Terms of Service
+              </button>
+              <button className="hover:text-sky-200 transition-colors">
+                Cookie Policy
+              </button>
+            </div>
           </div>
         </div>
       </footer>
