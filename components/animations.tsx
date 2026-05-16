@@ -146,6 +146,7 @@ interface ServiceItem {
   iconColor: string;
   revBg: string;
   shape: "circle" | "ring" | "cross";
+  image?: string; // Added image property
 }
 
 function CornerShape({
@@ -245,21 +246,19 @@ function ServiceCard({ service }: { service: ServiceItem }) {
     iconColor,
     revBg,
     shape,
+    image, // Added image property
   } = service;
 
   // The inner track is 200% wide. Both panels are 50% (= 100% of card).
   // On hover we shift the track by -50% (left) or +50% (right) so the image
   // slides OUT and the reveal slides IN simultaneously — true SimplyBook swap.
+  // REMOVE row-reverse entirely — always [Image | Reveal] left-to-right
   const trackStyle: React.CSSProperties = {
     display: "flex",
-    flexDirection: dir === "right" ? "row-reverse" : "row",
+    flexDirection: "row", // ← always "row", never "row-reverse"
     width: "200%",
     height: "100%",
-    transform: hovered
-      ? dir === "left"
-        ? "translateX(-50%)"
-        : "translateX(50%)"
-      : "translateX(0)",
+    transform: hovered ? "translateX(-50%)" : "translateX(0)", // ← same for all cards
     transition: "transform 0.52s cubic-bezier(0.77,0,0.175,1)",
   };
 
@@ -293,6 +292,21 @@ function ServiceCard({ service }: { service: ServiceItem }) {
               transition: "transform 0.55s ease",
             }}
           />
+          {/* Added image layer */}
+          {image && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: `url(${image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                opacity: 0.8,
+                transform: hovered ? "scale(1.06)" : "scale(1)",
+                transition: "transform 0.55s ease",
+              }}
+            />
+          )}
           <div
             style={{
               position: "absolute",

@@ -140,7 +140,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 relative z-10">
           <AnimatedSection>
             <h2 className="text-4xl font-bold text-center text-blue-950 mb-4">
-              Our Departments
+              Our Services
             </h2>
             <p className="text-center text-gray-600 mb-16 text-lg">
               Comprehensive diagnostic services tailored to your needs
@@ -182,6 +182,8 @@ export default function LandingPage() {
               iconColor: "#3b82f6",
               revBg: "#1e40af",
               shape: "ring",
+              image:
+                "https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&q=80",
             },
             {
               title: "Imaging",
@@ -200,6 +202,8 @@ export default function LandingPage() {
               iconColor: "#ef4444",
               revBg: "#991b1b",
               shape: "cross",
+              image:
+                "https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&q=80",
             },
             {
               title: "Cardiology",
@@ -218,6 +222,8 @@ export default function LandingPage() {
               iconColor: "#f59e0b",
               revBg: "#b45309",
               shape: "circle",
+              image:
+                "https://media.istockphoto.com/id/1321166286/photo/female-doctor-listens-to-a-patients-lungs-during-a-medical-exam.webp?a=1&b=1&s=612x612&w=0&k=20&c=xRGZT-3z-OXzNwuOlr3I77103P6yGu-ehYkBhE2waDg=",
             },
             {
               title: "Neurology",
@@ -236,6 +242,8 @@ export default function LandingPage() {
               iconColor: "#8b5cf6",
               revBg: "#5b21b6",
               shape: "ring",
+              image:
+                "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGElMjBibGFjayUyMG5ldXJvbG9naXN0fGVufDB8fDB8fHww",
             },
             {
               title: "Orthopedics",
@@ -254,6 +262,8 @@ export default function LandingPage() {
               iconColor: "#10b981",
               revBg: "#047857",
               shape: "cross",
+              image:
+                "https://media.istockphoto.com/id/1185470154/photo/orthopedic-doctor-examines-injured-soldiers-ankle.webp?a=1&b=1&s=612x612&w=0&k=20&c=xk3HBuyDjYm54hzVyRYEWRRLic3sTLa4o4ceSNBgxu4=",
             },
             {
               title: "General Consultation",
@@ -272,6 +282,8 @@ export default function LandingPage() {
               iconColor: "#6366f1",
               revBg: "#4338ca",
               shape: "circle",
+              image:
+                "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             },
           ]}
         />
