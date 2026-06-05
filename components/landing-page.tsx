@@ -25,7 +25,7 @@ export default function LandingPage() {
   const { login } = useAuth();
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [adminRole, setAdminRole] = useState<"admin" | "doctor">("admin");
+  const [adminRole, setAdminRole] = useState<"admin" | "frontdesk">("admin");
 
   const handleBookingClick = async () => {
     setShowBookingModal(true);
@@ -170,7 +170,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Departments Showcase Section */}
       {/* Departments Showcase Section */}
       <section className="py-20 px-0 w-full bg-white relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 relative z-10">
@@ -578,7 +577,7 @@ export default function LandingPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                   </svg>
                 </div>
               </div>
@@ -804,21 +803,18 @@ export default function LandingPage() {
                   onChange={() => setAdminRole("admin")}
                   className="mr-3"
                 />
-                <span className="text-sm ml-2 text-blue-900">
-                  Manage all appointments and queue
+                <span className="text-blue-900 font-semibold">
+                  Administrator
                 </span>
               </label>
               <label className="block">
                 <input
                   type="radio"
-                  checked={adminRole === "doctor"}
-                  onChange={() => setAdminRole("doctor")}
+                  checked={adminRole === "frontdesk"}
+                  onChange={() => setAdminRole("frontdesk")}
                   className="mr-3"
                 />
-                <span className="text-blue-900 font-semibold">Doctor</span>
-                <span className="text-sm ml-2 text-blue-900">
-                  Review patient appointments
-                </span>
+                <span className="text-blue-900 font-semibold">Front Desk</span>
               </label>
             </div>
 

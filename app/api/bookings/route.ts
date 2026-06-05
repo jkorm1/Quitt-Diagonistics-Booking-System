@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
       deptId,
       appointmentTime,
       serviceType = 'In-Clinic',
+      serviceCategory,
       locationAddress,
       problemDescription,
     } = body;
@@ -29,6 +30,7 @@ export async function POST(request: NextRequest) {
         deptId,
         appointmentTime,
         serviceType,
+        serviceCategory,
         locationAddress,
         problemDescription
       );

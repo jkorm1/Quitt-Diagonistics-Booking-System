@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import LandingPage from "@/components/landing-page";
 import GlassBookingWizard from "@/components/glass-booking-wizard";
 import AdminDashboardFunctional from "@/components/admin-dashboard-functional";
-import DoctorDashboard from "@/components/doctor-dashboard";
+import FrontDeskDashboard from "@/components/front-desk-dashboard";
 
 export default function Home() {
   const { userType, isLoading } = useAuth();
@@ -30,9 +30,9 @@ export default function Home() {
     return <AdminDashboardFunctional />;
   }
 
-  // Doctor dashboard
-  if (userType === "doctor") {
-    return <DoctorDashboard />;
+  //    Front Desk dashboard
+  if (userType === "frontdesk") {
+    return <FrontDeskDashboard />;
   }
 
   // Default landing page for unauthenticated users

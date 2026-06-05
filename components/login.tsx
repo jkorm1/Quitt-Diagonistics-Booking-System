@@ -46,8 +46,8 @@ export default function Login() {
           </div>
 
           {/* User Type Selection */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            {["patient", "admin", "doctor"].map((type) => (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {["patient", "frontdesk"].map((type) => (
               <button
                 key={type}
                 onClick={() => setSelectedType(type as UserType)}
@@ -57,7 +57,9 @@ export default function Login() {
                     : "bg-blue-50 text-gray-700 hover:bg-blue-100 border border-blue-200"
                 }`}
               >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
+                {type === "frontdesk"
+                  ? "Front Desk"
+                  : type.charAt(0).toUpperCase() + type.slice(1)}
               </button>
             ))}
           </div>
@@ -111,8 +113,7 @@ export default function Login() {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-xs text-gray-600 text-center">
               Demo mode: Use any email and password. Try{" "}
-              <strong>patient</strong>, <strong>admin</strong>, or{" "}
-              <strong>doctor</strong> roles.
+              <strong>patient</strong> or <strong>frontdesk</strong> roles.
             </p>
           </div>
         </div>

@@ -117,7 +117,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-blue-900">
-              Admin Dashboard
+              Front Desk Dashboard
             </h1>
             <p className="text-gray-600 mt-2">
               Manage appointments and patient queue

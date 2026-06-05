@@ -19,6 +19,7 @@ interface Department {
   id: number;
   name: string;
   allows_home_service: boolean;
+  allows_pickup_service: boolean;
 }
 
 interface SlotInfo {
@@ -44,6 +45,9 @@ export default function GlassBookingWizard({
   const [serviceType, setServiceType] = useState<"In-Clinic" | "Home-Service">(
     "In-Clinic",
   );
+  const [serviceCategory, setServiceCategory] = useState<
+    "At-Home" | "Pickup" | null
+  >(null);
   const [locationAddress, setLocationAddress] = useState("");
   const [departments, setDepartments] = useState<Department[]>([]);
   const [availableSlots, setAvailableSlots] = useState<SlotInfo[]>([]);
@@ -137,6 +141,8 @@ export default function GlassBookingWizard({
         patientName,
         phoneNumber,
         serviceType,
+        serviceCategory:
+          serviceType === "Home-Service" ? serviceCategory : null,
         problemDescription,
         locationAddress:
           serviceType === "Home-Service" ? locationAddress : null,
@@ -175,6 +181,7 @@ export default function GlassBookingWizard({
     setPhoneNumber("");
     setProblemDescription("");
     setServiceType("In-Clinic");
+    setServiceCategory(null);
     setLocationAddress("");
     setError(null);
     setSuccess(false);
@@ -401,23 +408,36 @@ export default function GlassBookingWizard({
                   </div>
                 </button>
                 <button
-                  onClick={() => setServiceType("Home-Service")}
-                  disabled={
-                    !departments.find((d) => d.id === selectedDept)
-                      ?.allows_home_service
-                  }
+                  onClick={() => {
+                    setServiceType("Home-Service");
+                    // For non-lab departments, automatically set service category to Pickup
+                    if (
+                      !departments.find((d) => d.id === selectedDept)
+                        ?.allows_home_service
+                    ) {
+                      setServiceCategory("Pickup");
+                    }
+                  }}
                   className={`flex-1 p-4 rounded-lg border-2 text-left transition-all ${
                     serviceType === "Home-Service"
                       ? "border-blue-950 bg-blue-50"
-                      : "border-blue-200 hover:border-blue-400 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      : "border-blue-200 hover:border-blue-400 bg-white"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <Home className="w-5 h-5 text-blue-600" />
                     <div>
-                      <p className="font-medium text-blue-950">Home Service</p>
+                      <p className="font-medium text-blue-950">
+                        {departments.find((d) => d.id === selectedDept)
+                          ?.allows_home_service
+                          ? "Home Service"
+                          : "Pickup Service"}
+                      </p>
                       <p className="text-sm text-gray-600">
-                        Service at your location
+                        {departments.find((d) => d.id === selectedDept)
+                          ?.allows_home_service
+                          ? "Service at your location"
+                          : "We'll pick you up from your location"}
                       </p>
                     </div>
                   </div>
@@ -427,6 +447,57 @@ export default function GlassBookingWizard({
 
             {serviceType === "Home-Service" && (
               <div>
+                {departments.find((d) => d.id === selectedDept)
+                  ?.allows_home_service && (
+                  <>
+                    <label className="block text-sm font-medium text-blue-950 mb-2">
+                      Service Category
+                    </label>
+                    <div className="flex gap-4 mb-4">
+                      <button
+                        onClick={() => setServiceCategory("At-Home")}
+                        className={`flex-1 p-4 rounded-lg border-2 text-left transition-all ${
+                          serviceCategory === "At-Home"
+                            ? "border-blue-950 bg-blue-50"
+                            : "border-blue-200 hover:border-blue-400 bg-white"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Home className="w-5 h-5 text-blue-600" />
+                          <div>
+                            <p className="font-medium text-blue-950">
+                              At-Home Service
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Service at your location
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => setServiceCategory("Pickup")}
+                        className={`flex-1 p-4 rounded-lg border-2 text-left transition-all ${
+                          serviceCategory === "Pickup"
+                            ? "border-blue-950 bg-blue-50"
+                            : "border-blue-200 hover:border-blue-400 bg-white"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <PrinterIcon className="w-5 h-5 text-blue-600" />
+                          <div>
+                            <p className="font-medium text-blue-950">
+                              Pickup Service
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              We'll pick you up from your location
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  </>
+                )}
+
                 <label className="block text-sm font-medium text-blue-950 mb-2">
                   Service Address
                 </label>
@@ -490,7 +561,11 @@ export default function GlassBookingWizard({
             </button>
             <button
               onClick={() => setStep(4)}
-              disabled={!patientName || !phoneNumber}
+              disabled={
+                !patientName ||
+                !phoneNumber ||
+                (serviceType === "Home-Service" && !serviceCategory)
+              }
               className="px-6 py-3 bg-blue-950 hover:bg-blue-900 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium"
             >
               Next
@@ -541,6 +616,17 @@ export default function GlassBookingWizard({
                 <FileText className="w-5 h-5 text-blue-600 mt-1" />
                 <span className="text-blue-950">
                   <strong>Address:</strong> {locationAddress}
+                </span>
+              </div>
+            )}
+            {serviceCategory && (
+              <div className="flex items-start gap-3">
+                <FileText className="w-5 h-5 text-blue-600 mt-1" />
+                <span className="text-blue-950">
+                  <strong>Service Category:</strong>{" "}
+                  {serviceCategory === "At-Home"
+                    ? "At-Home Service"
+                    : "Pickup Service"}
                 </span>
               </div>
             )}

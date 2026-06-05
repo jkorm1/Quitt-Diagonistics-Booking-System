@@ -6,6 +6,7 @@ export interface Department {
   name: string;
   max_concurrency: number;
   allows_home_service: boolean;
+  allows_pickup_service: boolean;
 }
 
 export interface Booking {
@@ -14,6 +15,7 @@ export interface Booking {
   phone_number: string;
   dept_id: number;
   service_type: 'In-Clinic' | 'Home-Service';
+  service_category?: 'At-Home' | 'Pickup'; // Only for Home-Service
   location_address?: string;
   problem_description?: string;
   appointment_time: string;
@@ -88,6 +90,7 @@ export async function createBooking(
   deptId: number,
   appointmentTime: string,
   serviceType: 'In-Clinic' | 'Home-Service' = 'In-Clinic',
+  serviceCategory?: 'At-Home' | 'Pickup',
   locationAddress?: string,
   problemDescription?: string
 ): Promise<Booking> {
@@ -99,12 +102,34 @@ export async function createBooking(
       throw new Error('No available slots for this time');
     }
 
+    // Verify service category is allowed for the department
+    if (serviceType === 'Home-Service') {
+      const [dept] = await connection.query(
+        'SELECT allows_home_service, allows_pickup_service FROM departments WHERE id = ?',
+        [deptId]
+      );
+
+      if (!Array.isArray(dept) || dept.length === 0) {
+        throw new Error('Department not found');
+      }
+
+      const department = dept[0] as any;
+      
+      if (serviceCategory === 'At-Home' && !department.allows_home_service) {
+        throw new Error('At-Home service is not available for this department');
+      }
+      
+      if (serviceCategory === 'Pickup' && !department.allows_pickup_service) {
+        throw new Error('Pickup service is not available for this department');
+      }
+    }
+
     const id = uuidv4();
     await connection.query(
       `INSERT INTO bookings 
-       (id, patient_name, phone_number, dept_id, service_type, location_address, problem_description, appointment_time, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
-      [id, patientName, phoneNumber, deptId, serviceType, locationAddress, problemDescription, appointmentTime]
+       (id, patient_name, phone_number, dept_id, service_type, service_category, location_address, problem_description, appointment_time, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
+      [id, patientName, phoneNumber, deptId, serviceType, serviceCategory, locationAddress, problemDescription, appointmentTime]
     );
 
     // Send WhatsApp notification
@@ -119,6 +144,7 @@ export async function createBooking(
     connection.release();
   }
 }
+
 
 export async function getBookingsByDate(date: string): Promise<Booking[]> {
   const connection = await pool.getConnection();

@@ -27,7 +27,7 @@ interface Appointment {
   status: string;
 }
 
-export default function DoctorDashboard() {
+export default function FrontDeskDashboard() {
   const { logout } = useAuth();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedAppointment, setSelectedAppointment] =
@@ -51,7 +51,9 @@ export default function DoctorDashboard() {
       const data = await res.json();
       setAppointments(data);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to fetch appointments");
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch appointments",
+      );
     } finally {
       setLoading(false);
     }
@@ -70,7 +72,9 @@ export default function DoctorDashboard() {
       fetchAppointments();
       setSelectedAppointment(null);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to update appointment");
+      setError(
+        error instanceof Error ? error.message : "Failed to update appointment",
+      );
     }
   };
 
@@ -105,8 +109,12 @@ export default function DoctorDashboard() {
                 />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-blue-950">Doctor Dashboard</h1>
-                <p className="text-sm text-gray-600">Review patient appointments</p>
+                <h1 className="text-xl font-bold text-blue-950">
+                  Front Desk Dashboard
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Manage patient appointments and direct to departments
+                </p>
               </div>
             </div>
             <button
@@ -129,7 +137,9 @@ export default function DoctorDashboard() {
                 <Calendar className="w-6 h-6 text-blue-950" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-blue-950">{todayAppointments.length}</p>
+                <p className="text-2xl font-bold text-blue-950">
+                  {todayAppointments.length}
+                </p>
                 <p className="text-sm text-gray-600">Today's Appointments</p>
               </div>
             </div>
@@ -141,7 +151,9 @@ export default function DoctorDashboard() {
                 <Clock className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-blue-950">{upcomingAppointments.length}</p>
+                <p className="text-2xl font-bold text-blue-950">
+                  {upcomingAppointments.length}
+                </p>
                 <p className="text-sm text-gray-600">Upcoming</p>
               </div>
             </div>
@@ -154,7 +166,10 @@ export default function DoctorDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-950">
-                  {appointments.filter((apt) => apt.status === "completed").length}
+                  {
+                    appointments.filter((apt) => apt.status === "completed")
+                      .length
+                  }
                 </p>
                 <p className="text-sm text-gray-600">Completed</p>
               </div>
@@ -165,8 +180,12 @@ export default function DoctorDashboard() {
         {/* Appointments List */}
         <div className="bg-white rounded-xl border border-blue-200 shadow-sm">
           <div className="p-6 border-b border-blue-200">
-            <h2 className="text-xl font-bold text-blue-950">Patient Appointments</h2>
-            <p className="text-gray-600">Review and manage patient appointments</p>
+            <h2 className="text-xl font-bold text-blue-950">
+              Patient Appointments
+            </h2>
+            <p className="text-gray-600">
+              Direct patients to appropriate departments and services
+            </p>
           </div>
 
           <div className="p-6">
@@ -210,13 +229,14 @@ export default function DoctorDashboard() {
                               appointment.status === "pending"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : appointment.status === "completed"
-                                ? "bg-green-100 text-green-800"
-                                : appointment.status === "cancelled"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
+                                  ? "bg-green-100 text-green-800"
+                                  : appointment.status === "cancelled"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-gray-100 text-gray-800"
                             }`}
                           >
-                            {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                            {appointment.status.charAt(0).toUpperCase() +
+                              appointment.status.slice(1)}
                           </span>
                         </div>
 
@@ -227,11 +247,18 @@ export default function DoctorDashboard() {
                           </div>
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-blue-600" />
-                            <span>{new Date(appointment.appointment_time).toLocaleString()}</span>
+                            <span>
+                              {new Date(
+                                appointment.appointment_time,
+                              ).toLocaleString()}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-blue-600" />
-                            <span>{appointment.dept_name || `Department ${appointment.dept_id}`}</span>
+                            <span>
+                              {appointment.dept_name ||
+                                `Department ${appointment.dept_id}`}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <FileText className="w-4 h-4 text-blue-600" />
@@ -242,7 +269,8 @@ export default function DoctorDashboard() {
                         {appointment.location_address && (
                           <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                             <p className="text-sm text-gray-700">
-                              <strong>Location:</strong> {appointment.location_address}
+                              <strong>Location:</strong>{" "}
+                              {appointment.location_address}
                             </p>
                           </div>
                         )}
@@ -250,7 +278,8 @@ export default function DoctorDashboard() {
                         {appointment.problem_description && (
                           <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                             <p className="text-sm text-gray-700">
-                              <strong>Description:</strong> {appointment.problem_description}
+                              <strong>Description:</strong>{" "}
+                              {appointment.problem_description}
                             </p>
                           </div>
                         )}
@@ -260,14 +289,24 @@ export default function DoctorDashboard() {
                         {appointment.status === "pending" && (
                           <>
                             <button
-                              onClick={() => updateAppointmentStatus(appointment.id, "completed")}
+                              onClick={() =>
+                                updateAppointmentStatus(
+                                  appointment.id,
+                                  "completed",
+                                )
+                              }
                               className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
                             >
                               <CheckCircle2 className="w-4 h-4" />
-                              Complete
+                              Check In
                             </button>
                             <button
-                              onClick={() => updateAppointmentStatus(appointment.id, "cancelled")}
+                              onClick={() =>
+                                updateAppointmentStatus(
+                                  appointment.id,
+                                  "cancelled",
+                                )
+                              }
                               className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
                             >
                               <XCircle className="w-4 h-4" />
@@ -277,7 +316,7 @@ export default function DoctorDashboard() {
                         )}
                         {appointment.status === "completed" && (
                           <span className="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-medium">
-                            Completed
+                            Checked In
                           </span>
                         )}
                         {appointment.status === "cancelled" && (

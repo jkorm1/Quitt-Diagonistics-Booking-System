@@ -7,6 +7,7 @@ CREATE TABLE departments (
     name VARCHAR(100) NOT NULL UNIQUE,
     max_concurrency INT NOT NULL DEFAULT 1,
     allows_home_service BOOLEAN DEFAULT FALSE,
+    allows_pickup_service BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -18,6 +19,7 @@ CREATE TABLE bookings (
     phone_number VARCHAR(20) NOT NULL,
     dept_id INT NOT NULL,
     service_type ENUM('In-Clinic', 'Home-Service') DEFAULT 'In-Clinic',
+     service_category ENUM('At-Home', 'Pickup') NULL, 
     location_address TEXT,
     problem_description TEXT,
     appointment_time DATETIME NOT NULL,
@@ -41,15 +43,14 @@ CREATE TABLE users (
 
 -- Seed Initial Data
 -- Seed Initial Data for Quitt Diagnostics
-INSERT INTO departments (name, max_concurrency, allows_home_service) VALUES
-('Ultrasound Scans', 3, FALSE),
-('Fluoroscopy Studies', 2, FALSE),
-('Mammogram', 2, FALSE),
-('Laboratory Services', 5, TRUE),
-('X-rays of Any Part', 3, FALSE),
-('MRI & CT Scan', 2, FALSE);
-('General Consultation', 1, FALSE);
-
+INSERT INTO departments (name, max_concurrency, allows_home_service, allows_pickup_service) VALUES
+('Laboratory Services', 5, TRUE, TRUE),
+('Ultrasound Scans', 3, FALSE, TRUE),
+('Fluoroscopy Studies', 3, FALSE, TRUE),
+('Mammogram', 3, FALSE, TRUE),
+('X-rays of Any Part', 3, FALSE, TRUE),
+('MRI & CT Scan', 3, FALSE, TRUE),
+('General Consultation', 1, FALSE, TRUE);
 
 -- Seed Admin User (password: admin123)
 INSERT INTO users (username, password_hash, role) VALUES
