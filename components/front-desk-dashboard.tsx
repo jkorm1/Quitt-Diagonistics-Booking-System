@@ -24,6 +24,7 @@ interface Appointment {
   service_type: string;
   location_address?: string;
   problem_description?: string;
+  prescription_image?: string;
   status: string;
 }
 
@@ -281,6 +282,18 @@ export default function FrontDeskDashboard() {
                               <strong>Description:</strong>{" "}
                               {appointment.problem_description}
                             </p>
+                          </div>
+                        )}
+                        {appointment.prescription_image && (
+                          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                            <p className="text-sm text-gray-700 mb-2">
+                              <strong>Prescription:</strong>
+                            </p>
+                            <img
+                              src={appointment.prescription_image}
+                              alt="Prescription"
+                              className="w-full h-48 object-cover rounded-lg border border-blue-200"
+                            />
                           </div>
                         )}
                       </div>

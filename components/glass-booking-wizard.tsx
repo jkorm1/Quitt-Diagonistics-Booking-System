@@ -49,6 +49,10 @@ export default function GlassBookingWizard({
     "At-Home" | "Pickup" | null
   >(null);
   const [locationAddress, setLocationAddress] = useState("");
+  const [prescriptionImage, setPrescriptionImage] = useState<string | null>(
+    null,
+  );
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [availableSlots, setAvailableSlots] = useState<SlotInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -146,6 +150,7 @@ export default function GlassBookingWizard({
         problemDescription,
         locationAddress:
           serviceType === "Home-Service" ? locationAddress : null,
+        prescriptionImage,
       };
 
       const res = await fetch("/api/bookings", {
@@ -183,6 +188,7 @@ export default function GlassBookingWizard({
     setServiceType("In-Clinic");
     setServiceCategory(null);
     setLocationAddress("");
+    setPrescriptionImage(null);
     setError(null);
     setSuccess(false);
   };
@@ -549,6 +555,97 @@ export default function GlassBookingWizard({
                 className="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 rows={3}
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-blue-950 mb-2">
+                Prescription Image (Optional)
+              </label>
+              <div className="space-y-2">
+                {prescriptionImage ? (
+                  <div className="relative">
+                    <img
+                      src={prescriptionImage}
+                      alt="Prescription"
+                      className="w-full h-48 object-cover rounded-lg border border-blue-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPrescriptionImage(null)}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-blue-200 border-dashed rounded-lg cursor-pointer bg-white hover:bg-blue-50">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <FileText className="w-8 h-8 mb-2 text-blue-600" />
+                      <p className="text-sm text-gray-600">
+                        <span className="font-semibold">Click to upload</span>{" "}
+                        or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        PNG, JPG or GIF (MAX. 5MB)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        setUploadingImage(true);
+                        const formData = new FormData();
+                        formData.append("file", file);
+
+                        try {
+                          const res = await fetch("/api/upload", {
+                            method: "POST",
+                            body: formData,
+                          });
+
+                          if (!res.ok) {
+                            const errorData = await res.json();
+                            throw new Error(
+                              errorData.error || "Failed to upload image",
+                            );
+                          }
+
+                          const data = await res.json();
+                          setPrescriptionImage(data.url);
+                        } catch (error) {
+                          setError(
+                            error instanceof Error
+                              ? error.message
+                              : "Failed to upload image",
+                          );
+                        } finally {
+                          setUploadingImage(false);
+                        }
+                      }}
+                    />
+                  </label>
+                )}
+                {uploadingImage && (
+                  <div className="flex items-center justify-center p-2 bg-blue-50 rounded-lg">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-950 mr-2"></div>
+                    <span className="text-sm text-blue-950">
+                      Uploading image...
+                    </span>
+                  </div>
+                )}
+                {prescriptionImage && (
+                  <div className="flex items-start gap-3">
+                    <FileText className="w-5 h-5 text-blue-600 mt-1" />
+                    <span className="text-blue-950">
+                      <strong>Prescription:</strong> Image uploaded
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

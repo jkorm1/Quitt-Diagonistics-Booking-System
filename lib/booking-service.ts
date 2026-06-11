@@ -18,6 +18,7 @@ export interface Booking {
   service_category?: 'At-Home' | 'Pickup'; // Only for Home-Service
   location_address?: string;
   problem_description?: string;
+  prescription_image?: string;
   appointment_time: string;
   status: 'Pending' | 'Completed' | 'Cancelled';
   created_at: string;
@@ -92,7 +93,8 @@ export async function createBooking(
   serviceType: 'In-Clinic' | 'Home-Service' = 'In-Clinic',
   serviceCategory?: 'At-Home' | 'Pickup',
   locationAddress?: string,
-  problemDescription?: string
+  problemDescription?: string,
+  prescriptionImage?: string
 ): Promise<Booking> {
   const connection = await pool.getConnection();
   try {
@@ -127,9 +129,9 @@ export async function createBooking(
     const id = uuidv4();
     await connection.query(
       `INSERT INTO bookings 
-       (id, patient_name, phone_number, dept_id, service_type, service_category, location_address, problem_description, appointment_time, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
-      [id, patientName, phoneNumber, deptId, serviceType, serviceCategory, locationAddress, problemDescription, appointmentTime]
+       (id, patient_name, phone_number, dept_id, service_type, service_category, location_address, problem_description, prescription_image, appointment_time, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
+      [id, patientName, phoneNumber, deptId, serviceType, serviceCategory, locationAddress, problemDescription, prescriptionImage, appointmentTime]
     );
 
     // Send WhatsApp notification
