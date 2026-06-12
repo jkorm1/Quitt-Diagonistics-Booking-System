@@ -11,8 +11,13 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
+  Plus,
+  X,
+  Download,
+  Printer,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import GlassBookingWizard from "@/components/glass-booking-wizard";
 
 interface Appointment {
   id: string;
@@ -35,6 +40,8 @@ export default function FrontDeskDashboard() {
     useState<Appointment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -62,10 +69,10 @@ export default function FrontDeskDashboard() {
 
   const updateAppointmentStatus = async (id: string, status: string) => {
     try {
-      const res = await fetch(`/api/bookings/${id}`, {
+      const res = await fetch(`/api/bookings`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ id, status }),
       });
       if (!res.ok) {
         throw new Error("Failed to update appointment status");
@@ -76,6 +83,42 @@ export default function FrontDeskDashboard() {
       setError(
         error instanceof Error ? error.message : "Failed to update appointment",
       );
+    }
+  };
+
+  const handleDownloadImage = (imageUrl: string, fileName: string) => {
+    fetch(imageUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      })
+      .catch((error) => console.error("Error downloading image:", error));
+  };
+
+  const handlePrintImage = (imageUrl: string) => {
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Prescription</title>
+            <style>
+              body { margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; }
+              img { max-width: 100%; max-height: 100vh; }
+            </style>
+          </head>
+          <body>
+            <img src="${imageUrl}" onload="window.print(); window.close();" />
+          </body>
+        </html>
+      `);
     }
   };
 
@@ -118,13 +161,22 @@ export default function FrontDeskDashboard() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowBookingModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                Book Appointment
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -212,140 +264,235 @@ export default function FrontDeskDashboard() {
                 <p className="text-gray-600">No appointments found</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {appointments.map((appointment) => (
-                  <div
-                    key={appointment.id}
-                    className="bg-gradient-to-r from-blue-50 to-white border border-blue-200 rounded-xl p-6 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <User className="w-5 h-5 text-blue-600" />
-                          <h3 className="font-bold text-blue-950 text-lg">
+              <div className="hospital-card p-6 border-2 border-blue-200">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b-2 border-blue-200">
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Patient
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Department
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Date/Time
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Contact
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Service Type
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Prescription
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Chief Complaint
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Status
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {appointments.map((appointment) => (
+                        <tr
+                          key={appointment.id}
+                          className="border-b border-blue-100 hover:bg-blue-50 transition-colors"
+                        >
+                          <td className="px-4 py-3 text-blue-900 font-semibold">
                             {appointment.patient_name}
-                          </h3>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              appointment.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : appointment.status === "completed"
-                                  ? "bg-green-100 text-green-800"
-                                  : appointment.status === "cancelled"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {appointment.status.charAt(0).toUpperCase() +
-                              appointment.status.slice(1)}
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700 mb-4">
-                          <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-blue-600" />
-                            <span>{appointment.phone_number}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-blue-600" />
-                            <span>
-                              {new Date(
-                                appointment.appointment_time,
-                              ).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-blue-600" />
-                            <span>
-                              {appointment.dept_name ||
-                                `Department ${appointment.dept_id}`}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-blue-600" />
-                            <span>{appointment.service_type}</span>
-                          </div>
-                        </div>
-
-                        {appointment.location_address && (
-                          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                            <p className="text-sm text-gray-700">
-                              <strong>Location:</strong>{" "}
-                              {appointment.location_address}
-                            </p>
-                          </div>
-                        )}
-
-                        {appointment.problem_description && (
-                          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                            <p className="text-sm text-gray-700">
-                              <strong>Description:</strong>{" "}
-                              {appointment.problem_description}
-                            </p>
-                          </div>
-                        )}
-                        {appointment.prescription_image && (
-                          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                            <p className="text-sm text-gray-700 mb-2">
-                              <strong>Prescription:</strong>
-                            </p>
-                            <img
-                              src={appointment.prescription_image}
-                              alt="Prescription"
-                              className="w-full h-48 object-cover rounded-lg border border-blue-200"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2 ml-4">
-                        {appointment.status === "pending" && (
-                          <>
-                            <button
-                              onClick={() =>
-                                updateAppointmentStatus(
-                                  appointment.id,
-                                  "completed",
-                                )
-                              }
-                              className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
+                          </td>
+                          <td className="px-4 py-3 text-blue-600 font-semibold">
+                            {appointment.dept_name ||
+                              `Department ${appointment.dept_id}`}
+                          </td>
+                          <td className="px-4 py-3 text-blue-900">
+                            {new Date(
+                              appointment.appointment_time,
+                            ).toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-blue-900">
+                            {appointment.phone_number}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                appointment.service_type === "Home-Service"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-green-100 text-green-800"
+                              }`}
                             >
-                              <CheckCircle2 className="w-4 h-4" />
-                              Check In
-                            </button>
-                            <button
-                              onClick={() =>
-                                updateAppointmentStatus(
-                                  appointment.id,
-                                  "cancelled",
-                                )
-                              }
-                              className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
+                              {appointment.service_type}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {appointment.prescription_image ? (
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src={appointment.prescription_image}
+                                  alt="Prescription"
+                                  className="w-12 h-12 object-cover rounded cursor-pointer"
+                                  onClick={() =>
+                                    setSelectedImage(
+                                      appointment.prescription_image!,
+                                    )
+                                  }
+                                />
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() =>
+                                      handleDownloadImage(
+                                        appointment.prescription_image!,
+                                        `prescription-${appointment.patient_name}.jpg`,
+                                      )
+                                    }
+                                    className="text-blue-600 hover:text-blue-800"
+                                    title="Download"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handlePrintImage(
+                                        appointment.prescription_image!,
+                                      )
+                                    }
+                                    className="text-blue-600 hover:text-blue-800"
+                                    title="Print"
+                                  >
+                                    <Printer className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">
+                                No prescription
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-blue-900">
+                            {appointment.problem_description ? (
+                              <div
+                                className="max-w-xs truncate"
+                                title={appointment.problem_description}
+                              >
+                                {appointment.problem_description}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">
+                                No description
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                appointment.status.toLowerCase() === "pending"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : appointment.status.toLowerCase() ===
+                                      "completed"
+                                    ? "bg-green-100 text-green-800"
+                                    : appointment.status.toLowerCase() ===
+                                        "cancelled"
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-gray-100 text-gray-800"
+                              }`}
                             >
-                              <XCircle className="w-4 h-4" />
-                              Cancel
-                            </button>
-                          </>
-                        )}
-                        {appointment.status === "completed" && (
-                          <span className="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-medium">
-                            Checked In
-                          </span>
-                        )}
-                        {appointment.status === "cancelled" && (
-                          <span className="px-4 py-2 bg-red-100 text-red-800 rounded-lg font-medium">
-                            Cancelled
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                              {appointment.status.charAt(0).toUpperCase() +
+                                appointment.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {appointment.status.toLowerCase() === "pending" && (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() =>
+                                    updateAppointmentStatus(
+                                      appointment.id,
+                                      "completed",
+                                    )
+                                  }
+                                  className="px-3 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg font-medium transition-colors flex items-center gap-1"
+                                >
+                                  <CheckCircle2 className="w-4 h-4" />
+                                  Check In
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    updateAppointmentStatus(
+                                      appointment.id,
+                                      "cancelled",
+                                    )
+                                  }
+                                  className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium transition-colors flex items-center gap-1"
+                                >
+                                  <XCircle className="w-4 h-4" />
+                                  Cancel
+                                </button>
+                              </div>
+                            )}
+                            {appointment.status.toLowerCase() ===
+                              "completed" && (
+                              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-lg font-medium">
+                                Checked In
+                              </span>
+                            )}
+                            {appointment.status.toLowerCase() ===
+                              "cancelled" && (
+                              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-lg font-medium">
+                                Cancelled
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="hospital-card border border-slate-200 p-8 rounded-[28px] max-w-4xl w-full my-8 relative bg-white/95 shadow-2xl">
+            <button
+              onClick={() => setShowBookingModal(false)}
+              className="absolute top-4 right-4 text-blue-600 hover:text-blue-900 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <GlassBookingWizard onClose={() => setShowBookingModal(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Image Preview Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-5xl w-full">
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Prescription Preview"
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

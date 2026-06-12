@@ -12,7 +12,11 @@ import {
   CheckCircle2,
   X,
   Clock,
+  Plus,
+  Download,
+  Printer,
 } from "lucide-react";
+import GlassBookingWizard from "@/components/glass-booking-wizard";
 
 interface Booking {
   id: string;
@@ -25,6 +29,7 @@ interface Booking {
   problem_description: string;
   status: string;
   dept_name?: string;
+  prescription_image?: string;
 }
 
 interface Department {
@@ -35,6 +40,7 @@ interface Department {
 
 export default function AdminDashboardFunctional() {
   const { logout } = useAuth();
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +49,7 @@ export default function AdminDashboardFunctional() {
     "queue" | "history" | "analytics"
   >("queue");
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -107,10 +114,10 @@ export default function AdminDashboardFunctional() {
 
   const updateBookingStatus = async (bookingId: string, newStatus: string) => {
     try {
-      const res = await fetch(`/api/queue`, {
+      const res = await fetch(`/api/bookings`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingId, status: newStatus }),
+        body: JSON.stringify({ id: bookingId, status: newStatus }),
       });
 
       if (res.ok) {
@@ -127,6 +134,42 @@ export default function AdminDashboardFunctional() {
     } catch (error) {
       console.error("[v0] Error updating booking:", error);
       alert("Failed to update booking status. Please try again.");
+    }
+  };
+
+  const handleDownloadImage = (imageUrl: string, fileName: string) => {
+    fetch(imageUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      })
+      .catch((error) => console.error("Error downloading image:", error));
+  };
+
+  const handlePrintImage = (imageUrl: string) => {
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Prescription</title>
+            <style>
+              body { margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; }
+              img { max-width: 100%; max-height: 100vh; }
+            </style>
+          </head>
+          <body>
+            <img src="${imageUrl}" onload="window.print(); window.close();" />
+          </body>
+        </html>
+      `);
     }
   };
 
@@ -174,6 +217,13 @@ export default function AdminDashboardFunctional() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowBookingModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              Book Appointment
+            </button>
             <button
               onClick={handleRefresh}
               className={`p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all ${refreshing ? "animate-spin" : ""}`}
@@ -270,92 +320,156 @@ export default function AdminDashboardFunctional() {
                 <p className="text-gray-600">No pending appointments</p>
               </div>
             ) : (
-              pendingBookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="hospital-card p-6 border-2 border-blue-200 hover:border-blue-400 transition-all"
-                >
-                  <div className="grid md:grid-cols-5 gap-6 mb-4 pb-4 border-b-2 border-blue-200">
-                    <div>
-                      <p className="text-gray-600 text-sm">Patient Name</p>
-                      <p className="text-blue-900 font-semibold">
-                        {booking.patient_name}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">Department</p>
-                      <p className="text-blue-600 font-semibold">
-                        {booking.dept_name ||
-                          getDepartmentName(booking.dept_id)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">Date & Time</p>
-                      <p className="text-blue-900 font-semibold">
-                        {new Date(booking.appointment_time).toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">Contact</p>
-                      <p className="text-blue-900 font-semibold">
-                        {booking.phone_number}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">Service Type</p>
-                      <p
-                        className={`font-semibold ${booking.service_type === "Home-Service" ? "text-blue-600" : "text-green-600"}`}
-                      >
-                        {booking.service_type}
-                      </p>
-                    </div>
-                  </div>
-
-                  {booking.problem_description && (
-                    <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-gray-600 text-sm mb-1">
-                        Chief Complaint
-                      </p>
-                      <p className="text-blue-900">
-                        {booking.problem_description}
-                      </p>
-                    </div>
-                  )}
-
-                  {booking.location_address &&
-                    booking.service_type === "Home-Service" && (
-                      <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-gray-600 text-sm mb-1">
-                          Home Address
-                        </p>
-                        <p className="text-blue-900">
-                          {booking.location_address}
-                        </p>
-                      </div>
-                    )}
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() =>
-                        updateBookingStatus(booking.id, "Completed")
-                      }
-                      className="flex-1 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                    >
-                      <CheckCircle2 className="w-5 h-5" />
-                      Check In
-                    </button>
-                    <button
-                      onClick={() =>
-                        updateBookingStatus(booking.id, "Cancelled")
-                      }
-                      className="flex-1 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                    >
-                      <X className="w-5 h-5" />
-                      Cancel
-                    </button>
-                  </div>
+              <div className="hospital-card p-6 border-2 border-blue-200">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b-2 border-blue-200">
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Patient
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Department
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Date/Time
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Contact
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Service Type
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Prescription
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Chief Complaint
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pendingBookings.map((booking) => (
+                        <tr
+                          key={booking.id}
+                          className="border-b border-blue-100 hover:bg-blue-50 transition-colors"
+                        >
+                          <td className="px-4 py-3 text-blue-900 font-semibold">
+                            {booking.patient_name}
+                          </td>
+                          <td className="px-4 py-3 text-blue-600 font-semibold">
+                            {booking.dept_name ||
+                              getDepartmentName(booking.dept_id)}
+                          </td>
+                          <td className="px-4 py-3 text-blue-900">
+                            {new Date(
+                              booking.appointment_time,
+                            ).toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-blue-900">
+                            {booking.phone_number}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                booking.service_type === "Home-Service"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-green-100 text-green-800"
+                              }`}
+                            >
+                              {booking.service_type}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {booking.prescription_image ? (
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src={booking.prescription_image}
+                                  alt="Prescription"
+                                  className="w-12 h-12 object-cover rounded cursor-pointer"
+                                  onClick={() =>
+                                    setSelectedImage(
+                                      booking.prescription_image!,
+                                    )
+                                  }
+                                />
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() =>
+                                      handleDownloadImage(
+                                        booking.prescription_image!,
+                                        `prescription-${booking.patient_name}.jpg`,
+                                      )
+                                    }
+                                    className="text-blue-600 hover:text-blue-800"
+                                    title="Download"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handlePrintImage(
+                                        booking.prescription_image!,
+                                      )
+                                    }
+                                    className="text-blue-600 hover:text-blue-800"
+                                    title="Print"
+                                  >
+                                    <Printer className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">
+                                No prescription
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-blue-900">
+                            {booking.problem_description ? (
+                              <div
+                                className="max-w-xs truncate"
+                                title={booking.problem_description}
+                              >
+                                {booking.problem_description}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">
+                                No description
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() =>
+                                  updateBookingStatus(booking.id, "Completed")
+                                }
+                                className="px-3 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg font-medium transition-colors flex items-center gap-1"
+                              >
+                                <CheckCircle2 className="w-4 h-4" />
+                                Check In
+                              </button>
+                              <button
+                                onClick={() =>
+                                  updateBookingStatus(booking.id, "Cancelled")
+                                }
+                                className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium transition-colors flex items-center gap-1"
+                              >
+                                <X className="w-4 h-4" />
+                                Cancel
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              ))
+              </div>
             )}
           </div>
         )}
@@ -390,6 +504,9 @@ export default function AdminDashboardFunctional() {
                           Contact
                         </th>
                         <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                          Prescription
+                        </th>
+                        <th className="text-left px-4 py-3 text-blue-900 font-bold">
                           Status
                         </th>
                       </tr>
@@ -414,6 +531,51 @@ export default function AdminDashboardFunctional() {
                           </td>
                           <td className="px-4 py-3 text-blue-900">
                             {booking.phone_number}
+                          </td>
+                          <td className="px-4 py-3">
+                            {booking.prescription_image ? (
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src={booking.prescription_image}
+                                  alt="Prescription"
+                                  className="w-12 h-12 object-cover rounded cursor-pointer"
+                                  onClick={() =>
+                                    setSelectedImage(
+                                      booking.prescription_image!,
+                                    )
+                                  }
+                                />
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() =>
+                                      handleDownloadImage(
+                                        booking.prescription_image!,
+                                        `prescription-${booking.patient_name}.jpg`,
+                                      )
+                                    }
+                                    className="text-blue-600 hover:text-blue-800"
+                                    title="Download"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handlePrintImage(
+                                        booking.prescription_image!,
+                                      )
+                                    }
+                                    className="text-blue-600 hover:text-blue-800"
+                                    title="Print"
+                                  >
+                                    <Printer className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">
+                                No prescription
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3">
                             <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
@@ -495,6 +657,40 @@ export default function AdminDashboardFunctional() {
           </div>
         )}
       </div>
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="hospital-card border border-slate-200 p-8 rounded-[28px] max-w-4xl w-full my-8 relative bg-white/95 shadow-2xl">
+            <button
+              onClick={() => setShowBookingModal(false)}
+              className="absolute top-4 right-4 text-blue-600 hover:text-blue-900 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <GlassBookingWizard onClose={() => setShowBookingModal(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Image Preview Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-5xl w-full">
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Prescription Preview"
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

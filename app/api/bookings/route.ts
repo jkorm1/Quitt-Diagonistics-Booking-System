@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createBooking, getBookingsByDate,  getAllBookings } from '@/lib/booking-service';
+import { createBooking, getBookingsByDate, getAllBookings, updateBookingStatus } from '@/lib/booking-service';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
@@ -68,6 +68,28 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch bookings' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, status } = body;
+
+    if (!id || !status) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    await updateBookingStatus(id, status);
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || 'Failed to update booking status' },
       { status: 500 }
     );
   }
