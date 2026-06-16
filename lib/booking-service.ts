@@ -154,7 +154,7 @@ export async function getBookingsByDate(date: string): Promise<Booking[]> {
     const [rows] = await connection.query(
       `SELECT b.*, d.name as dept_name FROM bookings b
        JOIN departments d ON b.dept_id = d.id
-       WHERE DATE(b.appointment_time) = ? AND b.status != 'Cancelled'
+       WHERE DATE(b.appointment_time) = ? 
        ORDER BY b.appointment_time ASC`,
       [date]
     );
@@ -163,6 +163,46 @@ export async function getBookingsByDate(date: string): Promise<Booking[]> {
     connection.release();
   }
 }
+
+export async function getFilteredBookings(
+  date?: string,
+  status?: string,
+  departmentId?: number
+): Promise<Booking[]> {
+  const connection = await pool.getConnection();
+  try {
+    let query = `
+      SELECT b.*, d.name as dept_name 
+      FROM bookings b
+      JOIN departments d ON b.dept_id = d.id
+      WHERE 1=1
+    `;
+    const params: any[] = [];
+
+    if (date) {
+      query += ` AND DATE(b.appointment_time) = ?`;
+      params.push(date);
+    }
+
+    if (status) {
+      query += ` AND b.status = ?`;
+      params.push(status);
+    }
+
+    if (departmentId) {
+      query += ` AND b.dept_id = ?`;
+      params.push(departmentId);
+    }
+
+    query += ` ORDER BY b.appointment_time DESC`;
+
+    const [rows] = await connection.query(query, params);
+    return rows as Booking[];
+  } finally {
+    connection.release();
+  }
+}
+
 
 export async function updateBookingStatus(
   bookingId: string,

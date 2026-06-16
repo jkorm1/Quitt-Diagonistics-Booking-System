@@ -56,15 +56,27 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const date = searchParams.get('date');
+    const status = searchParams.get('status');
+    const departmentId = searchParams.get('departmentId');
 
-    if (!date) {
-      // If no date is provided, return all bookings
+    if (!date && !status && !departmentId) {
+      // If no filters are provided, return all bookings
       const allBookings = await getAllBookings();
       return NextResponse.json(allBookings);
     }
 
-    const bookings = await getBookingsByDate(date);
-    return NextResponse.json(bookings);
+    const bookings = await getBookingsByDate(date || new Date().toISOString().split('T')[0]);
+    
+    // Apply additional filters if provided
+    let filteredBookings = bookings;
+    if (status) {
+      filteredBookings = filteredBookings.filter((b: any) => b.status === status);
+    }
+    if (departmentId) {
+      filteredBookings = filteredBookings.filter((b: any) => b.dept_id === parseInt(departmentId));
+    }
+    
+    return NextResponse.json(filteredBookings);
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch bookings' },
@@ -72,6 +84,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 
 export async function PATCH(request: NextRequest) {
   try {

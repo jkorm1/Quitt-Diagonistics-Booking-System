@@ -50,6 +50,10 @@ export default function AdminDashboardFunctional() {
   >("queue");
   const [refreshing, setRefreshing] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [serviceTypeFilter, setServiceTypeFilter] = useState<string>("all");
+  const [departmentFilter, setDepartmentFilter] = useState<number>(0);
+  const [dateFilter, setDateFilter] = useState<string>("");
 
   useEffect(() => {
     fetchData();
@@ -175,13 +179,35 @@ export default function AdminDashboardFunctional() {
 
   const pendingBookings = bookings
     .filter((b) => b.status === "Pending")
+    .filter(
+      (b) =>
+        serviceTypeFilter === "all" || b.service_type === serviceTypeFilter,
+    )
+    .filter((b) => departmentFilter === 0 || b.dept_id === departmentFilter)
+    .filter((b) => {
+      if (!dateFilter) return true;
+      const bookingDate = new Date(b.appointment_time)
+        .toISOString()
+        .split("T")[0];
+      return bookingDate === dateFilter;
+    })
     .sort(
       (a, b) =>
         new Date(a.appointment_time).getTime() -
         new Date(b.appointment_time).getTime(),
     );
 
-  const completedBookings = bookings.filter((b) => b.status === "Completed");
+  const completedBookings = bookings
+    .filter((b) => b.status === "Completed" || b.status === "Cancelled")
+    .filter((b) => statusFilter === "all" || b.status === statusFilter)
+    .filter((b) => departmentFilter === 0 || b.dept_id === departmentFilter)
+    .filter((b) => {
+      if (!dateFilter) return true;
+      const bookingDate = new Date(b.appointment_time)
+        .toISOString()
+        .split("T")[0];
+      return bookingDate === dateFilter;
+    });
 
   if (loading) {
     return (
@@ -218,18 +244,19 @@ export default function AdminDashboardFunctional() {
           </div>
           <div className="flex items-center gap-4">
             <button
+              onClick={handleRefresh}
+              className={`p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all ${refreshing ? "animate-spin" : ""}`}
+            >
+              <RefreshCw className="w-5 h-5" />
+            </button>
+            <button
               onClick={() => setShowBookingModal(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
             >
               <Plus className="w-5 h-5" />
               Book Appointment
             </button>
-            <button
-              onClick={handleRefresh}
-              className={`p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all ${refreshing ? "animate-spin" : ""}`}
-            >
-              <RefreshCw className="w-5 h-5" />
-            </button>
+
             <button
               onClick={logout}
               className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-medium transition-colors flex items-center gap-2"
@@ -314,6 +341,74 @@ export default function AdminDashboardFunctional() {
             <h2 className="text-2xl font-bold text-blue-900 mb-6">
               Pending Appointments
             </h2>
+            {/* Filter Controls */}
+            <div className="hospital-card p-4 border-2 border-blue-200 mb-6">
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* Service Type Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-blue-900 mb-2">
+                    Service Type
+                  </label>
+                  <select
+                    value={serviceTypeFilter}
+                    onChange={(e) => setServiceTypeFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="all">All Service Types</option>
+                    <option value="In-Clinic">In-Clinic</option>
+                    <option value="Home-Service">Home-Service</option>
+                  </select>
+                </div>
+
+                {/* Department Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-blue-900 mb-2">
+                    Department
+                  </label>
+                  <select
+                    value={departmentFilter}
+                    onChange={(e) =>
+                      setDepartmentFilter(parseInt(e.target.value))
+                    }
+                    className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value={0}>All Departments</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Date Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-blue-900 mb-2">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Clear Filters Button */}
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => {
+                    setServiceTypeFilter("all");
+                    setDepartmentFilter(0);
+                    setDateFilter("");
+                  }}
+                  className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
             {pendingBookings.length === 0 ? (
               <div className="hospital-card p-12 text-center border-2 border-blue-200">
                 <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -478,12 +573,82 @@ export default function AdminDashboardFunctional() {
         {selectedTab === "history" && (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-blue-900 mb-6">
-              Completed Appointments
+              Completed & Cancelled Appointments
             </h2>
+            {/* Filter Controls */}
+            <div className="hospital-card p-4 border-2 border-blue-200 mb-6">
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* Status Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-blue-900 mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+
+                {/* Department Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-blue-900 mb-2">
+                    Department
+                  </label>
+                  <select
+                    value={departmentFilter}
+                    onChange={(e) =>
+                      setDepartmentFilter(parseInt(e.target.value))
+                    }
+                    className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value={0}>All Departments</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Date Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-blue-900 mb-2">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Clear Filters Button */}
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setDepartmentFilter(0);
+                    setDateFilter("");
+                  }}
+                  className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
             {completedBookings.length === 0 ? (
               <div className="hospital-card p-12 text-center border-2 border-blue-200">
                 <TrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600">No completed appointments yet</p>
+                <p className="text-gray-600">
+                  No completed or cancelled appointments yet
+                </p>
               </div>
             ) : (
               <div className="hospital-card p-6 border-2 border-blue-200">
@@ -578,8 +743,14 @@ export default function AdminDashboardFunctional() {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                              Completed
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                booking.status === "Completed"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {booking.status}
                             </span>
                           </td>
                         </tr>

@@ -42,6 +42,9 @@ export default function FrontDeskDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [serviceTypeFilter, setServiceTypeFilter] = useState<string>("all");
+  const [dateFilter, setDateFilter] = useState<string>("");
 
   useEffect(() => {
     fetchAppointments();
@@ -241,6 +244,71 @@ export default function FrontDeskDashboard() {
             </p>
           </div>
 
+          {/* Filter Controls */}
+          <div className="p-4 border-b border-blue-200">
+            <div className="grid md:grid-cols-3 gap-4">
+              {/* Status Filter */}
+              <div>
+                <label className="block text-sm font-medium text-blue-900 mb-2">
+                  Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              {/* Service Type Filter */}
+              <div>
+                <label className="block text-sm font-medium text-blue-900 mb-2">
+                  Service Type
+                </label>
+                <select
+                  value={serviceTypeFilter}
+                  onChange={(e) => setServiceTypeFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">All Service Types</option>
+                  <option value="In-Clinic">In-Clinic</option>
+                  <option value="Home-Service">Home-Service</option>
+                </select>
+              </div>
+
+              {/* Date Filter */}
+              <div>
+                <label className="block text-sm font-medium text-blue-900 mb-2">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Clear Filters Button */}
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => {
+                  setStatusFilter("all");
+                  setServiceTypeFilter("all");
+                  setDateFilter("");
+                }}
+                className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium transition-colors"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+
           <div className="p-6">
             {loading ? (
               <div className="text-center py-8">
@@ -299,158 +367,178 @@ export default function FrontDeskDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {appointments.map((appointment) => (
-                        <tr
-                          key={appointment.id}
-                          className="border-b border-blue-100 hover:bg-blue-50 transition-colors"
-                        >
-                          <td className="px-4 py-3 text-blue-900 font-semibold">
-                            {appointment.patient_name}
-                          </td>
-                          <td className="px-4 py-3 text-blue-600 font-semibold">
-                            {appointment.dept_name ||
-                              `Department ${appointment.dept_id}`}
-                          </td>
-                          <td className="px-4 py-3 text-blue-900">
-                            {new Date(
-                              appointment.appointment_time,
-                            ).toLocaleString()}
-                          </td>
-                          <td className="px-4 py-3 text-blue-900">
-                            {appointment.phone_number}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                appointment.service_type === "Home-Service"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-green-100 text-green-800"
-                              }`}
-                            >
-                              {appointment.service_type}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            {appointment.prescription_image ? (
-                              <div className="flex items-center gap-2">
-                                <img
-                                  src={appointment.prescription_image}
-                                  alt="Prescription"
-                                  className="w-12 h-12 object-cover rounded cursor-pointer"
-                                  onClick={() =>
-                                    setSelectedImage(
-                                      appointment.prescription_image!,
-                                    )
-                                  }
-                                />
-                                <div className="flex gap-1">
-                                  <button
+                      {appointments
+                        .filter(
+                          (apt) =>
+                            statusFilter === "all" ||
+                            apt.status.toLowerCase() ===
+                              statusFilter.toLowerCase(),
+                        )
+                        .filter(
+                          (apt) =>
+                            serviceTypeFilter === "all" ||
+                            apt.service_type === serviceTypeFilter,
+                        )
+                        .filter((apt) => {
+                          if (!dateFilter) return true;
+                          const aptDate = new Date(apt.appointment_time)
+                            .toISOString()
+                            .split("T")[0];
+                          return aptDate === dateFilter;
+                        })
+                        .map((appointment) => (
+                          <tr
+                            key={appointment.id}
+                            className="border-b border-blue-100 hover:bg-blue-50 transition-colors"
+                          >
+                            <td className="px-4 py-3 text-blue-900 font-semibold">
+                              {appointment.patient_name}
+                            </td>
+                            <td className="px-4 py-3 text-blue-600 font-semibold">
+                              {appointment.dept_name ||
+                                `Department ${appointment.dept_id}`}
+                            </td>
+                            <td className="px-4 py-3 text-blue-900">
+                              {new Date(
+                                appointment.appointment_time,
+                              ).toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3 text-blue-900">
+                              {appointment.phone_number}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                  appointment.service_type === "Home-Service"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-green-100 text-green-800"
+                                }`}
+                              >
+                                {appointment.service_type}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              {appointment.prescription_image ? (
+                                <div className="flex items-center gap-2">
+                                  <img
+                                    src={appointment.prescription_image}
+                                    alt="Prescription"
+                                    className="w-12 h-12 object-cover rounded cursor-pointer"
                                     onClick={() =>
-                                      handleDownloadImage(
+                                      setSelectedImage(
                                         appointment.prescription_image!,
-                                        `prescription-${appointment.patient_name}.jpg`,
                                       )
                                     }
-                                    className="text-blue-600 hover:text-blue-800"
-                                    title="Download"
+                                  />
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={() =>
+                                        handleDownloadImage(
+                                          appointment.prescription_image!,
+                                          `prescription-${appointment.patient_name}.jpg`,
+                                        )
+                                      }
+                                      className="text-blue-600 hover:text-blue-800"
+                                      title="Download"
+                                    >
+                                      <Download className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handlePrintImage(
+                                          appointment.prescription_image!,
+                                        )
+                                      }
+                                      className="text-blue-600 hover:text-blue-800"
+                                      title="Print"
+                                    >
+                                      <Printer className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-gray-400 text-sm">
+                                  No prescription
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-blue-900">
+                              {appointment.problem_description ? (
+                                <div
+                                  className="max-w-xs truncate"
+                                  title={appointment.problem_description}
+                                >
+                                  {appointment.problem_description}
+                                </div>
+                              ) : (
+                                <span className="text-gray-400 text-sm">
+                                  No description
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                  appointment.status.toLowerCase() === "pending"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : appointment.status.toLowerCase() ===
+                                        "completed"
+                                      ? "bg-green-100 text-green-800"
+                                      : appointment.status.toLowerCase() ===
+                                          "cancelled"
+                                        ? "bg-red-100 text-red-800"
+                                        : "bg-gray-100 text-gray-800"
+                                }`}
+                              >
+                                {appointment.status.charAt(0).toUpperCase() +
+                                  appointment.status.slice(1)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              {appointment.status.toLowerCase() ===
+                                "pending" && (
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() =>
+                                      updateAppointmentStatus(
+                                        appointment.id,
+                                        "completed",
+                                      )
+                                    }
+                                    className="px-3 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg font-medium transition-colors flex items-center gap-1"
                                   >
-                                    <Download className="w-4 h-4" />
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Check In
                                   </button>
                                   <button
                                     onClick={() =>
-                                      handlePrintImage(
-                                        appointment.prescription_image!,
+                                      updateAppointmentStatus(
+                                        appointment.id,
+                                        "cancelled",
                                       )
                                     }
-                                    className="text-blue-600 hover:text-blue-800"
-                                    title="Print"
+                                    className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium transition-colors flex items-center gap-1"
                                   >
-                                    <Printer className="w-4 h-4" />
+                                    <XCircle className="w-4 h-4" />
+                                    Cancel
                                   </button>
                                 </div>
-                              </div>
-                            ) : (
-                              <span className="text-gray-400 text-sm">
-                                No prescription
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-blue-900">
-                            {appointment.problem_description ? (
-                              <div
-                                className="max-w-xs truncate"
-                                title={appointment.problem_description}
-                              >
-                                {appointment.problem_description}
-                              </div>
-                            ) : (
-                              <span className="text-gray-400 text-sm">
-                                No description
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                appointment.status.toLowerCase() === "pending"
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : appointment.status.toLowerCase() ===
-                                      "completed"
-                                    ? "bg-green-100 text-green-800"
-                                    : appointment.status.toLowerCase() ===
-                                        "cancelled"
-                                      ? "bg-red-100 text-red-800"
-                                      : "bg-gray-100 text-gray-800"
-                              }`}
-                            >
-                              {appointment.status.charAt(0).toUpperCase() +
-                                appointment.status.slice(1)}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            {appointment.status.toLowerCase() === "pending" && (
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() =>
-                                    updateAppointmentStatus(
-                                      appointment.id,
-                                      "completed",
-                                    )
-                                  }
-                                  className="px-3 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg font-medium transition-colors flex items-center gap-1"
-                                >
-                                  <CheckCircle2 className="w-4 h-4" />
-                                  Check In
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    updateAppointmentStatus(
-                                      appointment.id,
-                                      "cancelled",
-                                    )
-                                  }
-                                  className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium transition-colors flex items-center gap-1"
-                                >
-                                  <XCircle className="w-4 h-4" />
-                                  Cancel
-                                </button>
-                              </div>
-                            )}
-                            {appointment.status.toLowerCase() ===
-                              "completed" && (
-                              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-lg font-medium">
-                                Checked In
-                              </span>
-                            )}
-                            {appointment.status.toLowerCase() ===
-                              "cancelled" && (
-                              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-lg font-medium">
-                                Cancelled
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                              )}
+                              {appointment.status.toLowerCase() ===
+                                "completed" && (
+                                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-lg font-medium">
+                                  Checked In
+                                </span>
+                              )}
+                              {appointment.status.toLowerCase() ===
+                                "cancelled" && (
+                                <span className="px-3 py-1 bg-red-100 text-red-800 rounded-lg font-medium">
+                                  Cancelled
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
