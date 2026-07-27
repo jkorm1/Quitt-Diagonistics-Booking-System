@@ -109,7 +109,8 @@ INSERT INTO services (name, dept_id) VALUES
 INSERT INTO users (username, password_hash, role) VALUES
 ('admin', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36P4/ShO', 'Admin');
 
--- Seed Front Desk Staff User (password: staff123)
 INSERT INTO users (username, password_hash, role) VALUES
 ('staff', '$2b$10$W3ZvZGVtZGVtb25zdHJhdGlvbi5jb20uY2hhcmlzd29yZC5vcmc', 'Staff');
 
+
+-- Seed Front Desk Staff User (password: staff123)
