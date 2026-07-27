@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useAuth, type UserType } from "@/lib/auth-context";
-import { Mail, Lock, LogIn, Heart } from "lucide-react";
+import { Mail, Lock, LogIn, Heart, User, X } from "lucide-react";
+import "@/app/globals.css";
 
-export default function Login() {
+export default function Login({ onClose }: { onClose?: () => void }) {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [selectedType, setSelectedType] = useState<UserType>("patient");
+  const [selectedType, setSelectedType] = useState<UserType>("admin");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -18,11 +19,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      if (!email || !password) {
+      if (!username || !password) {
         setError("Please fill in all fields");
         return;
       }
-      await login(email, password, selectedType);
+      await login(username, password, selectedType);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -30,79 +31,110 @@ export default function Login() {
     }
   };
 
+  const userTypes: { id: UserType; label: string }[] = [
+    { id: "admin", label: "Administrator" },
+    { id: "frontdesk", label: "Front Desk" },
+  ];
+  const selectedIndex = userTypes.findIndex((t) => t.id === selectedType);
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-white to-blue-50">
-      <div className="w-full max-w-md">
-        <div className="hospital-card p-8">
+    <div className="liquid-stage min-h-screen flex items-center justify-center p-4">
+      {/* Ambient flowing background */}
+      <div className="liquid-blob liquid-blob-1" />
+      <div className="liquid-blob liquid-blob-2" />
+      <div className="liquid-blob liquid-blob-3" />
+      <div className="liquid-blob liquid-blob-4" />
+
+      <div className="relative w-full max-w-md">
+        {/* Close Button */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+          >
+            <X className="w-8 h-8" />
+          </button>
+        )}
+        <div className="liquid-card p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <Heart className="w-8 h-8 text-red-600" />
-              <h1 className="text-2xl font-bold text-blue-900">
-                Hospital Care
+              <div className="h-10 w-10 rounded-full overflow-hidden bg-white shadow-md">
+                <img
+                  src="/logo.png"
+                  alt="Quitt Diagnostics Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h1 className="text-2xl font-bold text-blue-900 tracking-tight">
+                Quitt Diagnostics
               </h1>
             </div>
-            <p className="text-gray-600">Professional Healthcare Management</p>
-          </div>
 
-          {/* User Type Selection */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {["patient", "frontdesk"].map((type) => (
-              <button
-                key={type}
-                onClick={() => setSelectedType(type as UserType)}
-                className={`py-2 px-3 rounded-lg font-medium transition-all ${
-                  selectedType === type
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "bg-blue-50 text-gray-700 hover:bg-blue-100 border border-blue-200"
-                }`}
-              >
-                {type === "frontdesk"
-                  ? "Front Desk"
-                  : type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
+            <p className="text-gray-600">
+              {selectedType === "admin" ? "Administrator Login" : "Staff Login"}
+            </p>
           </div>
 
           {error && (
-            <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <div className="bg-red-100/80 backdrop-blur border border-red-300 text-red-700 px-4 py-3 rounded-2xl mb-4">
               {error}
             </div>
           )}
 
           {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-4">
-            {/* Email */}
+            {/* Username */}
             <div className="relative">
-              <Mail className="absolute left-3 top-3.5 w-5 h-5 text-blue-600" />
+              <User className="absolute left-3 top-3.5 w-5 h-5 text-blue-600 pointer-events-none" />
               <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="hospital-input w-full pl-10"
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="liquid-input w-full pl-10"
                 disabled={isLoading}
               />
             </div>
 
             {/* Password */}
             <div className="relative">
-              <Lock className="absolute left-3 top-3.5 w-5 h-5 text-blue-600" />
+              <Lock className="absolute left-3 top-3.5 w-5 h-5 text-blue-600 pointer-events-none" />
               <input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="hospital-input w-full pl-10"
+                className="liquid-input w-full pl-10"
                 disabled={isLoading}
               />
+            </div>
+
+            {/* User Type Selection — sliding segmented control */}
+            <div className="liquid-segment-track grid grid-cols-2">
+              <div
+                className="liquid-segment-thumb"
+                style={{ transform: `translateX(${selectedIndex * 100}%)` }}
+              />
+              {userTypes.map((type) => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => setSelectedType(type.id)}
+                  className={`liquid-segment-btn py-2 px-3 rounded-full font-medium text-sm ${
+                    selectedType === type.id ? "text-white" : "text-gray-700"
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
             </div>
 
             {/* Login Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+              className="liquid-submit w-full text-white font-semibold py-3 rounded-full flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <LogIn className="w-5 h-5" />
               {isLoading ? "Signing in..." : "Sign In"}
@@ -110,10 +142,13 @@ export default function Login() {
           </form>
 
           {/* Demo Notice */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="mt-6 p-4 bg-white/40 backdrop-blur rounded-2xl border border-white/50">
             <p className="text-xs text-gray-600 text-center">
-              Demo mode: Use any email and password. Try{" "}
-              <strong>patient</strong> or <strong>frontdesk</strong> roles.
+              Demo credentials:
+              <br />
+              <strong>Admin:</strong> username: admin, password: admin123
+              <br />
+              <strong>Front Desk:</strong> username: staff, password: staff123
             </p>
           </div>
         </div>

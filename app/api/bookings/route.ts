@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
       locationAddress,
       problemDescription,
       prescriptionImage,
+      serviceId, 
     } = body;
 
     if (!patientName || !phoneNumber || !deptId || !appointmentTime) {
@@ -34,7 +35,8 @@ export async function POST(request: NextRequest) {
         serviceCategory,
         locationAddress,
         problemDescription, 
-        prescriptionImage
+        prescriptionImage,
+        serviceId
       );
       return NextResponse.json(booking, { status: 201 });
     } catch (dbError: any) {

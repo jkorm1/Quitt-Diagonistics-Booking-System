@@ -17,6 +17,7 @@ import {
   Printer,
 } from "lucide-react";
 import GlassBookingWizard from "@/components/glass-booking-wizard";
+import UserManagement from "@/components/user-management";
 
 interface Booking {
   id: string;
@@ -39,14 +40,14 @@ interface Department {
 }
 
 export default function AdminDashboardFunctional() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, pending: 0, completed: 0 });
   const [selectedTab, setSelectedTab] = useState<
-    "queue" | "history" | "analytics"
+    "queue" | "history" | "analytics" | "users"
   >("queue");
   const [refreshing, setRefreshing] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -317,8 +318,11 @@ export default function AdminDashboardFunctional() {
         <div className="flex gap-4 mb-8">
           {[
             { id: "queue", label: "Live Queue", icon: Clock },
-            { id: "history", label: "History", icon: TrendingUp },
+            { id: "history", label: "Summary", icon: TrendingUp },
             { id: "analytics", label: "Analytics", icon: BarChart3 },
+            ...(user?.role === "Admin"
+              ? [{ id: "users", label: "User Management", icon: Users }]
+              : []),
           ].map((tab) => (
             <button
               key={tab.id}
@@ -336,6 +340,7 @@ export default function AdminDashboardFunctional() {
         </div>
 
         {/* Queue Tab */}
+        {selectedTab === "users" && <UserManagement />}
         {selectedTab === "queue" && (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-blue-900 mb-6">

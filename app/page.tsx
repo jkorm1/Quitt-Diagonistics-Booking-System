@@ -20,11 +20,6 @@ export default function Home() {
     );
   }
 
-  // Patient booking - no authentication needed
-  if (userType === "patient") {
-    return <GlassBookingWizard />;
-  }
-
   // Admin dashboard with database integration
   if (userType === "admin") {
     return <AdminDashboardFunctional />;
@@ -33,6 +28,11 @@ export default function Home() {
   //    Front Desk dashboard
   if (userType === "frontdesk") {
     return <FrontDeskDashboard />;
+  }
+
+  // Patient booking - no authentication needed
+  if (userType === "patient") {
+    return <LandingPage />;
   }
 
   // Default landing page for unauthenticated users

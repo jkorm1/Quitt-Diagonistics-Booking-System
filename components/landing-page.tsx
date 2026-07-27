@@ -20,21 +20,15 @@ import {
   ServicesShowcase,
 } from "@/components/animations";
 import GlassBookingWizard from "@/components/glass-booking-wizard";
+import Login from "@/components/login";
 
 export default function LandingPage() {
   const { login } = useAuth();
-  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [adminRole, setAdminRole] = useState<"admin" | "frontdesk">("admin");
 
   const handleBookingClick = async () => {
     setShowBookingModal(true);
-  };
-
-  const handleAdminLogin = async () => {
-    await login(`${adminRole}@hospital.com`, "demo", adminRole);
-    setShowAdminModal(false);
-    setShowBookingModal(false);
   };
 
   const handleBookingClose = () => {
@@ -71,7 +65,7 @@ export default function LandingPage() {
                 Book Appointment
               </button>
               <button
-                onClick={() => setShowAdminModal(true)}
+                onClick={() => setShowLoginModal(true)}
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-lg text-sm sm:text-base transition-colors backdrop-blur-sm border border-white/20"
               >
                 <svg
@@ -118,7 +112,7 @@ export default function LandingPage() {
                   Learn More
                 </button>
                 <button
-                  onClick={() => setShowAdminModal(true)}
+                  onClick={() => setShowLoginModal(true)}
                   className="bg-white text-blue-950 hover:bg-blue-100 font-bold text-lg px-8 py-6 rounded-lg border border-blue-200"
                 >
                   Staff Login
@@ -577,7 +571,7 @@ export default function LandingPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                   </svg>
                 </div>
               </div>
@@ -787,51 +781,17 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Admin Login Modal */}
-      {showAdminModal && (
+      {/* Login Modal */}
+      {showLoginModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="hospital-card border border-slate-200 p-8 rounded-[28px] max-w-md w-full bg-white/95 shadow-2xl">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
-              Staff Login
-            </h2>
-
-            <div className="space-y-4 mb-6">
-              <label className="block">
-                <input
-                  type="radio"
-                  checked={adminRole === "admin"}
-                  onChange={() => setAdminRole("admin")}
-                  className="mr-3"
-                />
-                <span className="text-blue-900 font-semibold">
-                  Administrator
-                </span>
-              </label>
-              <label className="block">
-                <input
-                  type="radio"
-                  checked={adminRole === "frontdesk"}
-                  onChange={() => setAdminRole("frontdesk")}
-                  className="mr-3"
-                />
-                <span className="text-blue-900 font-semibold">Front Desk</span>
-              </label>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowAdminModal(false)}
-                className="flex-1 px-4 py-2 hospital-button border border-slate-200 text-sky-700 rounded-lg font-semibold hover:bg-sky-50 transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAdminLogin}
-                className="flex-1 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-semibold transition-all"
-              >
-                Login
-              </button>
-            </div>
+          <div className="relative w-full max-w-md">
+            <button
+              onClick={() => setShowLoginModal(false)}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <Login />
           </div>
         </div>
       )}

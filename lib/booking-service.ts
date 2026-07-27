@@ -1,12 +1,20 @@
 import pool from './db';
 import { v4 as uuidv4 } from 'uuid';
 
+export interface Service {
+  id: number;
+  name: string;
+  dept_id: number;
+  description?: string;
+}
+
 export interface Department {
   id: number;
   name: string;
   max_concurrency: number;
   allows_home_service: boolean;
   allows_pickup_service: boolean;
+  services?: Service[];
 }
 
 export interface Booking {
@@ -14,6 +22,7 @@ export interface Booking {
   patient_name: string;
   phone_number: string;
   dept_id: number;
+  service_id?: number; 
   service_type: 'In-Clinic' | 'Home-Service';
   service_category?: 'At-Home' | 'Pickup'; // Only for Home-Service
   location_address?: string;
@@ -34,6 +43,28 @@ export async function getDepartments(): Promise<Department[]> {
   try {
     const [rows] = await connection.query('SELECT * FROM departments ORDER BY name');
     return rows as Department[];
+  } finally {
+    connection.release();
+  }
+}
+
+export async function getDepartmentsWithServices(): Promise<Department[]> {
+  const connection = await pool.getConnection();
+  try {
+    // Get all departments
+    const [deptRows] = await connection.query('SELECT * FROM departments ORDER BY name');
+    const departments = deptRows as Department[];
+    
+    // For each department, get its services
+    for (const dept of departments) {
+      const [serviceRows] = await connection.query(
+        'SELECT * FROM services WHERE dept_id = ? ORDER BY name',
+        [dept.id]
+      );
+      dept.services = serviceRows as Service[];
+    }
+    
+    return departments;
   } finally {
     connection.release();
   }
@@ -94,7 +125,8 @@ export async function createBooking(
   serviceCategory?: 'At-Home' | 'Pickup',
   locationAddress?: string,
   problemDescription?: string,
-  prescriptionImage?: string
+  prescriptionImage?: string,
+  serviceId?: number
 ): Promise<Booking> {
   const connection = await pool.getConnection();
   try {
@@ -126,12 +158,24 @@ export async function createBooking(
       }
     }
 
+    // Verify service belongs to department if serviceId is provided
+    if (serviceId) {
+      const [service] = await connection.query(
+        'SELECT * FROM services WHERE id = ? AND dept_id = ?',
+        [serviceId, deptId]
+      );
+      
+      if (!Array.isArray(service) || service.length === 0) {
+        throw new Error('Service not found for this department');
+      }
+    }
+
     const id = uuidv4();
     await connection.query(
       `INSERT INTO bookings 
-       (id, patient_name, phone_number, dept_id, service_type, service_category, location_address, problem_description, prescription_image, appointment_time, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
-      [id, patientName, phoneNumber, deptId, serviceType, serviceCategory, locationAddress, problemDescription, prescriptionImage, appointmentTime]
+       (id, patient_name, phone_number, dept_id, service_id, service_type, service_category, location_address, problem_description, prescription_image, appointment_time, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
+      [id, patientName, phoneNumber, deptId, serviceId, serviceType, serviceCategory, locationAddress, problemDescription, prescriptionImage, appointmentTime]
     );
 
     // Send WhatsApp notification

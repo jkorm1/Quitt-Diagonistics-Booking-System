@@ -15,11 +15,19 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
+interface Service {
+  id: number;
+  name: string;
+  dept_id: number;
+  description?: string;
+}
+
 interface Department {
   id: number;
   name: string;
   allows_home_service: boolean;
   allows_pickup_service: boolean;
+  services?: Service[];
 }
 
 interface SlotInfo {
@@ -37,6 +45,7 @@ export default function GlassBookingWizard({
   const { logout, user } = useAuth();
   const [step, setStep] = useState(1);
   const [selectedDept, setSelectedDept] = useState<number | null>(null);
+  const [selectedService, setSelectedService] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [patientName, setPatientName] = useState(user?.name || "");
@@ -56,6 +65,7 @@ export default function GlassBookingWizard({
   const [departments, setDepartments] = useState<Department[]>([]);
   const [availableSlots, setAvailableSlots] = useState<SlotInfo[]>([]);
   const [loading, setLoading] = useState(false);
+  const [expandedDeptId, setExpandedDeptId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -65,7 +75,7 @@ export default function GlassBookingWizard({
 
   const fetchDepartments = async () => {
     try {
-      const res = await fetch("/api/departments");
+      const res = await fetch("/api/departments?includeServices=true");
       if (!res.ok) throw new Error("Failed to fetch departments");
       const data = await res.json();
       setDepartments(data);
@@ -141,6 +151,7 @@ export default function GlassBookingWizard({
 
       const bookingData = {
         deptId: selectedDept,
+        serviceId: selectedService,
         appointmentTime,
         patientName,
         phoneNumber,
@@ -273,23 +284,119 @@ export default function GlassBookingWizard({
         <div className="space-y-6">
           <h2 className="text-xl font-bold text-blue-950">Select Department</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {departments.map((dept) => (
-              <button
+            {departments.map((dept, index) => (
+              <div
                 key={dept.id}
-                onClick={() => handleDeptSelect(dept.id)}
-                className={`p-6 rounded-xl border-2 text-left transition-all ${
-                  selectedDept === dept.id
-                    ? "border-blue-950 bg-blue-50"
-                    : "border-blue-200 hover:border-blue-400 bg-white"
-                }`}
+                className={`relative group ${expandedDeptId === dept.id ? "z-50" : "z-0"}`}
+                style={{ zIndex: expandedDeptId === dept.id ? 50 : index + 1 }}
+                onMouseEnter={() => {
+                  // Set expanded state on hover
+                  setExpandedDeptId(dept.id);
+                }}
+                onMouseLeave={() => {
+                  // Clear expanded state on mouse leave
+                  setExpandedDeptId(null);
+                }}
               >
-                <h3 className="font-bold text-blue-950 mb-2">{dept.name}</h3>
-                <p className="text-gray-600 text-sm">
-                  {dept.allows_home_service
-                    ? "Available for home service"
-                    : "In-clinic service only"}
-                </p>
-              </button>
+                <button
+                  onClick={() => {
+                    handleDeptSelect(dept.id);
+                    // Toggle expanded state for mobile
+                    if (expandedDeptId === dept.id) {
+                      setExpandedDeptId(null);
+                    } else {
+                      setExpandedDeptId(dept.id);
+                    }
+                  }}
+                  className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
+                    selectedDept === dept.id
+                      ? "border-blue-950 bg-blue-50"
+                      : "border-blue-200 hover:border-blue-400 bg-white"
+                  }`}
+                >
+                  <h3 className="font-bold text-blue-950 mb-2">{dept.name}</h3>
+                  <p className="text-gray-600 text-sm">
+                    {dept.services && dept.services.length > 0
+                      ? `${dept.services.length} services available`
+                      : dept.allows_home_service
+                        ? "Available for home service"
+                        : "In-clinic service only"}
+                  </p>
+                  {/* Show selected service if one is selected for this department */}
+                  {selectedDept === dept.id && selectedService && (
+                    <div className="mt-2 pt-2 border-t border-blue-200">
+                      <p className="text-sm font-medium text-blue-950">
+                        Selected:{" "}
+                        {
+                          dept.services?.find((s) => s.id === selectedService)
+                            ?.name
+                        }
+                      </p>
+                    </div>
+                  )}
+                </button>
+
+                {/* Services dropdown - show on hover for desktop, on click for mobile */}
+                <div
+                  className={`absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 transition-all duration-200 ${
+                    // Show on hover for desktop, or if expanded for mobile
+                    expandedDeptId === dept.id
+                      ? "opacity-100 visible"
+                      : "opacity-0 invisible"
+                  }`}
+                  style={{ zIndex: 100 }}
+                  onMouseEnter={() => {
+                    // Keep dropdown open when hovering over it
+                    setExpandedDeptId(dept.id);
+                  }}
+                  onMouseLeave={() => {
+                    // Close dropdown when mouse leaves
+                    setExpandedDeptId(null);
+                  }}
+                >
+                  <div className="p-2">
+                    <p className="text-xs font-semibold text-gray-500 mb-2 px-2">
+                      Select a service:
+                    </p>
+                    {dept.services && dept.services.length > 0 ? (
+                      dept.services.map((service) => (
+                        <button
+                          key={service.id}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent the department button click event
+                            setSelectedDept(dept.id);
+                            setSelectedService(service.id);
+                            setExpandedDeptId(null); // Close the dropdown after selection
+                          }}
+                          className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                            selectedService === service.id
+                              ? "bg-blue-50 text-blue-950 font-medium"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {service.name}
+                        </button>
+                      ))
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent the department button click event
+                          setSelectedDept(dept.id);
+                          setSelectedService(null); // No service to select
+                          setExpandedDeptId(null); // Close the dropdown after selection
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                          selectedDept === dept.id && !selectedService
+                            ? "bg-blue-50 text-blue-950 font-medium"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        General Service
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
           <div className="flex justify-end">
@@ -550,7 +657,7 @@ export default function GlassBookingWizard({
 
             <div>
               <label className="block text-sm font-medium text-blue-950 mb-2">
-                Prescription Image (Optional)
+                Request Form Image (Optional)
               </label>
               <div className="space-y-2">
                 {prescriptionImage ? (
@@ -675,6 +782,22 @@ export default function GlassBookingWizard({
                 {departments.find((d) => d.id === selectedDept)?.name}
               </span>
             </div>
+
+            {/* Add service to confirmation if selected */}
+            {selectedService && (
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-blue-600" />
+                <span className="text-blue-950">
+                  <strong>Service:</strong>{" "}
+                  {
+                    departments
+                      .find((d) => d.id === selectedDept)
+                      ?.services?.find((s) => s.id === selectedService)?.name
+                  }
+                </span>
+              </div>
+            )}
+
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-blue-600" />
               <span className="text-blue-950">

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDepartments } from '@/lib/booking-service';
+import { getDepartments, getDepartmentsWithServices } from '@/lib/booking-service';
 
 export async function GET(request: NextRequest) {
   try {
-    const departments = await getDepartments();
+    const searchParams = request.nextUrl.searchParams;
+    const includeServices = searchParams.get('includeServices');
+    
+    // Use getDepartmentsWithServices if the query parameter is set
+    const departments = includeServices === 'true' 
+      ? await getDepartmentsWithServices() 
+      : await getDepartments();
+      
     return NextResponse.json(departments);
   } catch (error: any) {
     // Log the error for debugging
