@@ -85,6 +85,29 @@ export async function getAllBookings(): Promise<Booking[]> {
   }
 }
 
+export async function getSortedBookings(): Promise<Booking[]> {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(
+      `SELECT b.*, d.name as dept_name 
+       FROM bookings b
+       JOIN departments d ON b.dept_id = d.id
+       ORDER BY 
+         CASE b.status
+           WHEN 'Pending' THEN 1
+           WHEN 'Completed' THEN 2
+           WHEN 'Cancelled' THEN 3
+           ELSE 4
+         END,
+         CASE WHEN b.status = 'Pending' THEN b.appointment_time END ASC,
+         b.appointment_time DESC`
+    );
+    return rows as Booking[];
+  } finally {
+    connection.release();
+  }
+}
+
 
 export async function checkConcurrency(
   deptId: number,
@@ -302,7 +325,7 @@ export async function getAvailableSlots(
         // 3. Count existing bookings for this specific time slot
         const [bookingCounts] = await connection.query(
           `SELECT COUNT(*) as count FROM bookings 
-           WHERE dept_id = ? AND appointment_time = ? AND status != 'Cancelled'`,
+           WHERE dept_id = ? AND appointment_time = ? AND status = 'pending'`,
           [deptId, appointmentTime]
         );
 

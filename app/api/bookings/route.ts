@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createBooking, getBookingsByDate, getAllBookings, updateBookingStatus } from '@/lib/booking-service';
+import { createBooking, getBookingsByDate, getAllBookings, updateBookingStatus, getSortedBookings } from '@/lib/booking-service';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
@@ -61,10 +61,10 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const departmentId = searchParams.get('departmentId');
 
-    if (!date && !status && !departmentId) {
-      // If no filters are provided, return all bookings
-      const allBookings = await getAllBookings();
-      return NextResponse.json(allBookings);
+     if (!date && !status && !departmentId) {
+      // If no filters are provided, return sorted bookings
+      const sortedBookings = await getSortedBookings();
+      return NextResponse.json(sortedBookings);
     }
 
     const bookings = await getBookingsByDate(date || new Date().toISOString().split('T')[0]);

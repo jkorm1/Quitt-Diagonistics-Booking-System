@@ -325,7 +325,7 @@ export default function GlassBookingWizard({
                   {/* Show selected service if one is selected for this department */}
                   {selectedDept === dept.id && selectedService && (
                     <div className="mt-2 pt-2 border-t border-blue-200">
-                      <p className="text-sm font-medium text-blue-950">
+                      <p className="text-sm font-medium text-green-600">
                         Selected:{" "}
                         {
                           dept.services?.find((s) => s.id === selectedService)
