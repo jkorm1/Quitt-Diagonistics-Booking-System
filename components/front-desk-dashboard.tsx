@@ -46,7 +46,6 @@ export default function FrontDeskDashboard() {
   const [serviceTypeFilter, setServiceTypeFilter] = useState<string>("all");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
   const [departments, setDepartments] = useState<any[]>([]);
-
   const [dateFilter, setDateFilter] = useState<string>("");
 
   useEffect(() => {

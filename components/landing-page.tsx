@@ -47,9 +47,9 @@ export default function LandingPage() {
         <nav className="absolute top-0 left-0 right-0 z-20 px-4 sm:px-6 lg:px-8 py-4">
           <div className="max-w-6xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-full overflow-hidden bg-white shadow-md">
+              <div className="h-15 w-15 rounded-full overflow-hidden bg-white shadow-md">
                 <img
-                  src="/logo.png"
+                  src="/logonew.png"
                   alt="Quitt Diagnostics Logo"
                   className="w-full h-full object-cover"
                 />

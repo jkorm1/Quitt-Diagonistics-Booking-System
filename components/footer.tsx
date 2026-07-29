@@ -23,9 +23,9 @@ export default function Footer() {
           {/* Logo and About */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-4 mb-6">
-              <div className="h-14 w-14 rounded-full overflow-hidden bg-white shadow-lg">
+              <div className="h-16 w-16 rounded-full overflow-hidden bg-white shadow-lg">
                 <img
-                  src="/logo.png"
+                  src="/logonew.png"
                   alt="Quitt Diagnostics Logo"
                   className="w-full h-full object-cover"
                 />

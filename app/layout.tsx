@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   generator: "v0.app",
   icons: {
     icon: [
-       {
-        url: "/favicon.ico",
+      {
+        url: "/favicon (2).ico",
         type: "image/x-icon",
       },
       {
