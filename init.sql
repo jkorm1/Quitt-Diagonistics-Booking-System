@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS quitt_diagnostics;
 USE quitt_diagnostics;
 
 -- 1. Dynamic Departments Table
-CREATE TABLE departments (
+CREATE TABLE IF NOT EXISTS departments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     max_concurrency INT NOT NULL DEFAULT 1,
@@ -13,7 +13,7 @@ CREATE TABLE departments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Add a new table for services
-CREATE TABLE services (
+CREATE TABLE IF NOT EXISTS services (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     dept_id INT NOT NULL,
@@ -23,9 +23,8 @@ CREATE TABLE services (
     CONSTRAINT fk_service_dept FOREIGN KEY (dept_id) REFERENCES departments(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- 2. Bookings Table
-CREATE TABLE bookings (
+CREATE TABLE IF NOT EXISTS bookings (
     id VARCHAR(36) PRIMARY KEY,
     patient_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
@@ -48,7 +47,7 @@ CREATE TABLE bookings (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. Staff Users Table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -56,9 +55,8 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
--- Seed Initial Data
-INSERT INTO departments (name, max_concurrency, allows_home_service, allows_pickup_service) VALUES
+-- Seed Initial Data (using INSERT IGNORE to avoid duplicates)
+INSERT IGNORE INTO departments (name, max_concurrency, allows_home_service, allows_pickup_service) VALUES
 ('Ultrasound Services', 3, FALSE, TRUE),
 ('Mammogram Services', 3, FALSE, TRUE),
 ('CT Scan Services', 3, FALSE, TRUE),
@@ -68,7 +66,7 @@ INSERT INTO departments (name, max_concurrency, allows_home_service, allows_pick
 
 -- Seed Services for each department
 -- Ultrasound Services
-INSERT INTO services (name, dept_id) VALUES
+INSERT IGNORE INTO services (name, dept_id) VALUES
 ('Abdominal Ultrasound', 1),
 ('Obstetrics Scan', 1),
 ('Breast Scan', 1),
@@ -77,40 +75,35 @@ INSERT INTO services (name, dept_id) VALUES
 ('Gynaecological Scan', 1);
 
 -- Mammogram Services
-INSERT INTO services (name, dept_id) VALUES
+INSERT IGNORE INTO services (name, dept_id) VALUES
 ('General Mammogram Services', 2);
 
 -- CT Scan Services
-INSERT INTO services (name, dept_id) VALUES
+INSERT IGNORE INTO services (name, dept_id) VALUES
 ('General CT Scan Services', 3);
 
 -- Laboratory Services
-INSERT INTO services (name, dept_id) VALUES
+INSERT IGNORE INTO services (name, dept_id) VALUES
 ('Cardiac Profile', 4),
 ('LFT (Liver Function Test)', 4),
 ('RFT (Renal Function Test)', 4),
 ('Lipid Profile', 4);
 
 -- Electrocardiogram (ECG)
-INSERT INTO services (name, dept_id) VALUES
+INSERT IGNORE INTO services (name, dept_id) VALUES
 ('Electrocardiogram (ECG) Testing', 5);
 
 -- Other Services
-INSERT INTO services (name, dept_id) VALUES
+INSERT IGNORE INTO services (name, dept_id) VALUES
 ('Plain X-Ray Reporting', 6),
 ('Fluoroscopy Studies Reporting', 6),
 ('Mammogram Reporting', 6),
 ('CT Scan Reporting', 6),
 ('MRI Reporting', 6);
 
-
-
 -- Seed Admin User (password: admin123)
-INSERT INTO users (username, password_hash, role) VALUES
+INSERT IGNORE INTO users (username, password_hash, role) VALUES
 ('admin', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36P4/ShO', 'Admin');
 
-INSERT INTO users (username, password_hash, role) VALUES
+INSERT IGNORE INTO users (username, password_hash, role) VALUES
 ('staff', '$2b$10$W3ZvZGVtZGVtb25zdHJhdGlvbi5jb20uY2hhcmlzd29yZC5vcmc', 'Staff');
-
-
--- Seed Front Desk Staff User (password: staff123)
