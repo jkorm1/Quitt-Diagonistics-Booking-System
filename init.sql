@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS quitt_diagnostics;
+USE quitt_diagnostics;
+
 -- 1. Dynamic Departments Table
 CREATE TABLE IF NOT EXISTS departments (
     id INT AUTO_INCREMENT PRIMARY KEY,
