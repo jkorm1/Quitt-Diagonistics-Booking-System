@@ -148,10 +148,10 @@ export default function LandingPage() {
                 <div className="flex items-center gap-3">
                   <Heart className="w-5 h-5 text-yellow-400 flex-shrink-0" />
                   <span className="font-semibold">Quality Care Guaranteed</span>
+                  <span>24/7 Online Booking</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                  <span>24/7 Online Booking</span>
                 </div>
               </div>
             </div>
@@ -207,7 +207,7 @@ export default function LandingPage() {
           <div className="relative w-full h-96 mb-6">
             <CarAnimation>
               <Image
-                src="/logoanimate.png"
+                src="https://res.cloudinary.com/dtmzgtkw9/image/upload/v1785690409/prescriptions/pvxg3ogtcxirnd1yowq9.jpg"
                 alt="Quitt Diagnostics"
                 fill
                 className="object-contain"

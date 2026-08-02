@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Heart,
   Clock,
@@ -13,6 +14,7 @@ import {
   Linkedin,
   Youtube,
   ArrowUpRight,
+  ChevronDown,
 } from "lucide-react";
 
 const LOCATIONS = [
@@ -34,7 +36,82 @@ const LOCATIONS = [
   },
 ];
 
+// Main service categories. Categories with a `sub` array get an expandable
+// chevron; categories without one just render as a single line.
+const SERVICES = [
+  { id: "mri", label: "MRI" },
+  { id: "ct", label: "CT-Scan and Angiogram Services" },
+  {
+    id: "lab",
+    label: "Laboratory Services",
+    sub: [
+      "Liver Function Test",
+      "Kidney Function Test",
+      "Cardiac Profiles",
+      "Thyroid Function Test",
+      "Complete Blood Count",
+      "Lipid Profile",
+      "Blood Sugars",
+      "Hormonal Assay",
+      "G6PD",
+      "PSA",
+      "Sickling",
+      "Semen Analysis",
+      "HBS",
+      "Pap Smear",
+      "Urine RE",
+      "Stool RE",
+      "Pregnancy Test",
+      "Malaria Parasites and more",
+    ],
+  },
+  { id: "xray", label: "X-Ray" },
+  { id: "fluoroscopy", label: "Fluoroscopy" },
+  {
+    id: "ultrasound",
+    label: "Ultrasound Scans",
+    sub: [
+      "Abdominal Ultrasound",
+      "Pelvic Ultrasound",
+      "Urological Ultrasound",
+      "Thyroid Scan",
+      "Breast Scan",
+      "Doppler Scan for Limbs",
+      "Brain Scan for Children",
+      "Muscular Skeletal Scan (MSK)",
+      "Endo Vaginal Scan",
+      "Obstetric Scan",
+      "Scrotal Doppler Scan",
+      "Penile Scan",
+      "Fetal Anomaly Screen Scan",
+      "Ankle Brachial Index",
+      "Trans Rectal Scan",
+      "Saline Instilled Sonohysterography",
+    ],
+  },
+  { id: "ecg", label: "ECG / ECHO Services" },
+  {
+    id: "reporting",
+    label: "Reporting",
+    sub: ["Plain X-ray", "Mammogram", "MRI", "CT and more"],
+  },
+];
+
 export default function Footer() {
+  const [openServices, setOpenServices] = useState(new Set());
+
+  const toggleService = (id) => {
+    setOpenServices((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
   return (
     <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300">
       <div className="max-w-7xl mx-auto">
@@ -45,7 +122,7 @@ export default function Footer() {
             <div className="flex items-center gap-4 mb-6">
               <div className="h-16 w-16 rounded-full overflow-hidden bg-white shadow-lg">
                 <img
-                  src="/logonew.png"
+                  src="https://res.cloudinary.com/dtmzgtkw9/image/upload/v1785690409/prescriptions/pvxg3ogtcxirnd1yowq9.jpg"
                   alt="Quitt Diagnostics Logo"
                   className="w-full h-full object-cover"
                 />
@@ -109,38 +186,60 @@ export default function Footer() {
               <Heart className="w-5 h-5 text-sky-400" />
               Our Services
             </h3>
-            <div className="space-y-4">
-              <div className="group">
-                <h4 className="text-sky-400 font-medium mb-2 group-hover:text-sky-300 transition-colors">
-                  CT SCAN SERVICES
-                </h4>
-                <ul className="space-y-2 text-sm text-slate-400">
-                  <li>• Advanced imaging technology</li>
-                  <li>• 3D reconstruction</li>
-                  <li>• Low-dose options</li>
-                </ul>
-              </div>
-              <div className="group">
-                <h4 className="text-sky-400 font-medium mb-2 group-hover:text-sky-300 transition-colors">
-                  MAMMOGRAM SERVICES
-                </h4>
-                <ul className="space-y-2 text-sm text-slate-400">
-                  <li>• Digital mammography</li>
-                  <li>• 3D tomosynthesis</li>
-                  <li>• Breast ultrasound</li>
-                </ul>
-              </div>
-              <div className="group">
-                <h4 className="text-sky-400 font-medium mb-2 group-hover:text-sky-300 transition-colors">
-                  ULTRASOUND SERVICES
-                </h4>
-                <ul className="space-y-2 text-sm text-slate-400">
-                  <li>• Abdominal ultrasound</li>
-                  <li>• Obstetrics scan</li>
-                  <li>• Doppler scan</li>
-                </ul>
-              </div>
-            </div>
+            <ul className="space-y-1">
+              {SERVICES.map((service) => {
+                const hasSub = Boolean(service.sub);
+                const isOpen = openServices.has(service.id);
+                return (
+                  <li key={service.id}>
+                    {hasSub ? (
+                      <button
+                        type="button"
+                        onClick={() => toggleService(service.id)}
+                        aria-expanded={isOpen}
+                        className="w-full flex items-center justify-between gap-2 py-2 text-left text-slate-300 hover:text-sky-400 transition-colors"
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="h-1 w-1 bg-sky-400 rounded-full flex-shrink-0"></span>
+                          <span className="text-sm">{service.label}</span>
+                        </span>
+                        <ChevronDown
+                          className={`w-4 h-4 text-sky-400 flex-shrink-0 transition-transform ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2 py-2">
+                        <span className="h-1 w-1 bg-sky-400 rounded-full flex-shrink-0"></span>
+                        <span className="text-sm text-slate-300">
+                          {service.label}
+                        </span>
+                      </div>
+                    )}
+
+                    {hasSub && (
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ${
+                          isOpen ? "max-h-96" : "max-h-0"
+                        }`}
+                      >
+                        <ul className="pl-5 pb-2 space-y-1.5 border-l border-slate-800 ml-1">
+                          {service.sub.map((item) => (
+                            <li
+                              key={item}
+                              className="text-xs text-slate-400 leading-snug"
+                            >
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
 
           {/* Quick Links */}

@@ -234,7 +234,7 @@ export default function GlassBookingWizard({
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-blue-950 rounded-full flex items-center justify-center overflow-hidden">
             <img
-              src="/logo.png"
+              src="https://res.cloudinary.com/dtmzgtkw9/image/upload/v1785690409/prescriptions/pvxg3ogtcxirnd1yowq9.jpg"
               alt="Quitt Diagnostics Logo"
               className="w-full h-full object-cover"
             />
