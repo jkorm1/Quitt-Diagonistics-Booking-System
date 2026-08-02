@@ -12,6 +12,8 @@ import {
   Star,
   Lock,
   X,
+  MapPin,
+  Navigation,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -22,6 +24,29 @@ import {
 import GlassBookingWizard from "@/components/glass-booking-wizard";
 import Login from "@/components/login";
 import Footer from "@/components/footer";
+
+const LOCATIONS = [
+  {
+    name: "Ridge",
+    address: "Ridge, Kumasi",
+    mapsUrl:
+      "https://www.google.com/maps/place/Quitt+Healthcare+Diagnostics+Limited+-+Ridge/@6.6892757,-1.6377171,17z/data=!3m1!4b1!4m6!3m5!1s0xfdb9700712ef2e5:0xc5b12d2a0c3f46a3!8m2!3d6.6892757!4d-1.6351422!16s%2Fg%2F11yv24j_9t",
+    accent: "#f59e0b",
+  },
+  {
+    name: "Adum",
+    address: "Aseda House, 50 Adum Road, Kumasi",
+    mapsUrl:
+      "https://www.google.com/maps/place/Aseda+House,+50+Adum+Road,+Kumasi/@6.6883412,-1.6197848,17z/data=!3m1!4b1!4m6!3m5!1s0xfdb96ec8459171f:0xd4b8e4210b7d0692!8m2!3d6.6883412!4d-1.6197848!16s%2Fg%2F11fdwyqvdr",
+    accent: "#38bdf8",
+  },
+];
+
+function getQrCodeUrl(mapsUrl: string) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=${encodeURIComponent(
+    mapsUrl,
+  )}`;
+}
 
 export default function LandingPage() {
   const { login } = useAuth();
@@ -353,39 +378,115 @@ export default function LandingPage() {
               Leading Healthcare Excellence
             </p>
           </AnimatedSection>
+
           <div className="grid md:grid-cols-2 gap-8">
-            {[
-              {
-                icon: Clock,
-                title: "Quick Booking",
-                desc: "Schedule appointments in minutes with our online system.",
-              },
-              {
-                icon: Award,
-                title: "Expert Team",
-                desc: "Certified healthcare professionals with years of experience.",
-              },
-              {
-                icon: Heart,
-                title: "Patient Care",
-                desc: "Your health is our priority with compassionate care.",
-              },
-              {
-                icon: Star,
-                title: "Premium Service",
-                desc: "Experience excellence in every interaction.",
-              },
-            ].map((feature, i) => (
-              <AnimatedSection key={i} delay={i * 0.1}>
-                <div className="flex gap-4 text-white">
-                  <feature.icon className="w-8 h-8 text-yellow-400 flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                    <p className="text-blue-100">{feature.desc}</p>
+            <div className="space-y-8">
+              {[
+                {
+                  icon: Clock,
+                  title: "Quick Booking",
+                  desc: "Schedule appointments in minutes with our online system.",
+                },
+                {
+                  icon: Award,
+                  title: "Expert Team",
+                  desc: "Certified healthcare professionals with years of experience.",
+                },
+                {
+                  icon: Heart,
+                  title: "Patient Care",
+                  desc: "Your health is our priority with compassionate care.",
+                },
+                {
+                  icon: Star,
+                  title: "Premium Service",
+                  desc: "Experience excellence in every interaction.",
+                },
+              ].map((feature, i) => (
+                <AnimatedSection key={i} delay={i * 0.1}>
+                  <div className="flex gap-4 text-white">
+                    <feature.icon className="w-8 h-8 text-yellow-400 flex-shrink-0 mt-1" />
+                    <div>
+                      <h3 className="text-xl font-bold mb-2">
+                        {feature.title}
+                      </h3>
+                      <p className="text-blue-100">{feature.desc}</p>
+                    </div>
                   </div>
-                </div>
+                </AnimatedSection>
+              ))}
+            </div>
+
+            {/* Visit Our Locations — dual QR code cards */}
+            <div className="flex flex-col justify-center gap-5">
+              <AnimatedSection>
+                <p className="text-yellow-400 font-semibold tracking-wide uppercase text-sm mb-1 text-center md:text-left">
+                  Visit Us
+                </p>
+                <h3 className="text-white font-bold text-2xl mb-5 text-center md:text-left">
+                  Scan for Directions
+                </h3>
               </AnimatedSection>
-            ))}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {LOCATIONS.map((loc, i) => (
+                  <AnimatedSection key={loc.name} delay={i * 0.15}>
+                    <a
+                      href={loc.mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative block h-full overflow-hidden rounded-2xl p-[2px] transition-transform duration-300 hover:-translate-y-1"
+                      style={{
+                        background: `linear-gradient(145deg, ${loc.accent}, rgba(255,255,255,0.15))`,
+                      }}
+                    >
+                      <div className="relative h-full rounded-[14px] bg-white/95 backdrop-blur-sm px-5 pt-6 pb-5 flex flex-col items-center text-center overflow-hidden">
+                        {/* soft glow accent */}
+                        <div
+                          className="absolute -top-10 -right-10 w-28 h-28 rounded-full opacity-20 blur-2xl"
+                          style={{ backgroundColor: loc.accent }}
+                        ></div>
+
+                        <div
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-4 text-white shadow-sm"
+                          style={{ backgroundColor: loc.accent }}
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                          {loc.name}
+                        </div>
+
+                        <div className="relative rounded-xl p-2.5 bg-white shadow-md ring-1 ring-black/5 group-hover:scale-[1.03] transition-transform duration-300">
+                          <img
+                            src={getQrCodeUrl(loc.mapsUrl)}
+                            alt={`QR code for directions to ${loc.name}`}
+                            width={140}
+                            height={140}
+                            className="w-[140px] h-[140px] rounded-md"
+                          />
+                          <div
+                            className="absolute -bottom-2 -right-2 rounded-full p-1.5 shadow-md text-white"
+                            style={{ backgroundColor: loc.accent }}
+                          >
+                            <Navigation className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+
+                        <p className="text-blue-950 font-semibold text-sm mt-4 leading-snug">
+                          {loc.address}
+                        </p>
+                        <span
+                          className="mt-3 inline-flex items-center gap-1 text-xs font-semibold"
+                          style={{ color: loc.accent }}
+                        >
+                          Get Directions
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
+                    </a>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

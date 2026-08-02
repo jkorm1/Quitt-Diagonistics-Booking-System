@@ -12,7 +12,27 @@ import {
   Instagram,
   Linkedin,
   Youtube,
+  ArrowUpRight,
 } from "lucide-react";
+
+const LOCATIONS = [
+  {
+    name: "Ridge",
+    lines: ["Ridge, Kumasi"],
+    mapsUrl:
+      "https://www.google.com/maps/place/Quitt+Healthcare+Diagnostics+Limited+-+Ridge/@6.6892757,-1.6377171,17z/data=!3m1!4b1!4m6!3m5!1s0xfdb9700712ef2e5:0xc5b12d2a0c3f46a3!8m2!3d6.6892757!4d-1.6351422!16s%2Fg%2F11yv24j_9t",
+  },
+  {
+    name: "Adum",
+    lines: [
+      "Inside Aseda House, 50 Adum Road",
+      "Ground Floor",
+      "Directly opposite Main Entrance",
+    ],
+    mapsUrl:
+      "https://www.google.com/maps/place/Aseda+House,+50+Adum+Road,+Kumasi/@6.6883412,-1.6197848,17z/data=!3m1!4b1!4m6!3m5!1s0xfdb96ec8459171f:0xd4b8e4210b7d0692!8m2!3d6.6883412!4d-1.6197848!16s%2Fg%2F11fdwyqvdr",
+  },
+];
 
 export default function Footer() {
   return (
@@ -47,8 +67,10 @@ export default function Footer() {
             {/* Social Media Icons */}
             <div className="flex gap-4 mb-8">
               <a
-                href="#"
+                href="https://www.facebook.com/profile.php?id=61559129903701"
                 className="group relative h-10 w-10 rounded-full bg-sky-600/20 flex items-center justify-center transition-all hover:bg-sky-600/30 hover:scale-110"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <Facebook className="w-5 h-5 text-sky-400 group-hover:text-white transition-colors" />
               </a>
@@ -59,8 +81,10 @@ export default function Footer() {
                 <Twitter className="w-5 h-5 text-sky-400 group-hover:text-white transition-colors" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/quitthealthdiagnostics/"
                 className="group relative h-10 w-10 rounded-full bg-sky-600/20 flex items-center justify-center transition-all hover:bg-sky-600/30 hover:scale-110"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <Instagram className="w-5 h-5 text-sky-400 group-hover:text-white transition-colors" />
               </a>
@@ -160,7 +184,7 @@ export default function Footer() {
                 </div>
                 <div>
                   <p className="text-slate-400">+233 501259203-6</p>
-                  <p className="text-slate-400">info.health@quithealth.com</p>
+                  <p className="text-slate-400">info.health@quitthealth.com</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -168,20 +192,46 @@ export default function Footer() {
                   <Mail className="w-5 h-5 text-sky-400" />
                 </div>
                 <div>
-                  <p className="text-slate-400">www.quithealth.com</p>
+                  <p className="text-slate-400">www.quitthealth.com</p>
                   <p className="text-slate-400">P.O Box KS 15862, Kumasi</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-sky-600/20 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5 text-sky-400" />
-                </div>
-                <div>
-                  <p className="text-slate-400">Inside Aseda House</p>
-                  <p className="text-slate-400">Ground Floor</p>
-                  <p className="text-slate-400">
-                    Directly opposite Main Entrance
-                  </p>
+
+              {/* Our Locations — two branches */}
+              <div className="pt-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">
+                  Our Locations
+                </p>
+                <div className="space-y-3">
+                  {LOCATIONS.map((loc) => (
+                    <a
+                      key={loc.name}
+                      href={loc.mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-800/40 p-3 transition-all hover:border-sky-500/40 hover:bg-slate-800/70"
+                    >
+                      <div className="h-10 w-10 rounded-full bg-sky-600/20 flex items-center justify-center flex-shrink-0 group-hover:bg-sky-600/30 transition-colors">
+                        <MapPin className="w-5 h-5 text-sky-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-white font-semibold text-sm">
+                            {loc.name}
+                          </span>
+                          <ArrowUpRight className="w-3.5 h-3.5 text-sky-400 opacity-0 -translate-y-0.5 translate-x-0.5 group-hover:opacity-100 transition-all" />
+                        </div>
+                        {loc.lines.map((line, idx) => (
+                          <p
+                            key={idx}
+                            className="text-slate-400 text-sm leading-snug"
+                          >
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                    </a>
+                  ))}
                 </div>
               </div>
             </div>
