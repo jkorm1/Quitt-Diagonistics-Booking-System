@@ -159,7 +159,7 @@ export default function LandingPage() {
               <div className="relative w-full h-96 mb-6">
                 <CarAnimation>
                   <Image
-                    src="/logoanimate.png"
+                    src="https://res.cloudinary.com/dtmzgtkw9/image/upload/v1785681434/prescriptions/nvqagbokwwphwzdwuuhc.png"
                     alt="Quitt Diagnostics"
                     fill
                     className="object-contain"
