@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS departments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Add a new table for services
 CREATE TABLE IF NOT EXISTS services (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -30,7 +31,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     dept_id INT NOT NULL,
     service_id INT NULL,
     service_type ENUM('In-Clinic', 'Home-Service') DEFAULT 'In-Clinic',
-    service_category ENUM('At-Home', 'Pickup') NULL,
+    service_category ENUM('At-Home', 'Pickup') NULL, 
     location_address TEXT,
     problem_description TEXT,
     prescription_image VARCHAR(255) NULL,
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Seed Initial Data
+-- Seed Initial Data (using INSERT IGNORE to avoid duplicates)
 INSERT IGNORE INTO departments (name, max_concurrency, allows_home_service, allows_pickup_service) VALUES
 ('Ultrasound Services', 3, FALSE, TRUE),
 ('Mammogram Services', 3, FALSE, TRUE),
@@ -63,6 +64,7 @@ INSERT IGNORE INTO departments (name, max_concurrency, allows_home_service, allo
 ('Electrocardiogram (ECG)', 3, FALSE, TRUE),
 ('Other Services', 3, FALSE, TRUE);
 
+-- Seed Services for each department
 -- Ultrasound Services
 INSERT IGNORE INTO services (name, dept_id) VALUES
 ('Abdominal Ultrasound', 1),
