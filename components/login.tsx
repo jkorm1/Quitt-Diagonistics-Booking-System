@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth, type UserType } from "@/lib/auth-context";
 import { Mail, Lock, LogIn, Heart, User, X } from "lucide-react";
 import "@/app/globals.css";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login({ onClose }: { onClose?: () => void }) {
   const { login } = useAuth();
@@ -12,6 +13,7 @@ export default function Login({ onClose }: { onClose?: () => void }) {
   const [selectedType, setSelectedType] = useState<UserType>("admin");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,11 +23,27 @@ export default function Login({ onClose }: { onClose?: () => void }) {
     try {
       if (!username || !password) {
         setError("Please fill in all fields");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Please fill in all fields",
+        });
         return;
       }
       await login(username, password, selectedType);
+      toast({
+        variant: "default",
+        className: "bg-green-600 text-white border-green-600",
+        title: "Success",
+        description: "Login successful",
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err instanceof Error ? err.message : "Login failed",
+      });
     } finally {
       setIsLoading(false);
     }

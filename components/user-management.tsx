@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Users, Plus, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface User {
   id: number;
@@ -22,6 +23,7 @@ export default function UserManagement() {
   });
   const [userFormError, setUserFormError] = useState("");
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchUsers();
@@ -61,6 +63,12 @@ export default function UserManagement() {
         await fetchUsers();
         setShowUserModal(false);
         setUserFormData({ username: "", password: "", role: "Staff" });
+        toast({
+          variant: "default",
+          className: "bg-green-600 text-white border-green-600",
+          title: "Success",
+          description: "User created successfully",
+        });
       } else {
         const error = await res.json();
         throw new Error(error.error || "Failed to create user");
@@ -70,6 +78,12 @@ export default function UserManagement() {
       setUserFormError(
         error instanceof Error ? error.message : "Failed to create user",
       );
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to create user",
+      });
     }
   };
 
@@ -83,13 +97,24 @@ export default function UserManagement() {
 
       if (res.ok) {
         await fetchUsers();
+        toast({
+          variant: "default",
+          className: "bg-green-600 text-white border-green-600",
+          title: "Success",
+          description: "User deleted successfully",
+        });
       } else {
         const error = await res.json();
         throw new Error(error.error || "Failed to delete user");
       }
     } catch (error) {
       console.error("[v0] Error deleting user:", error);
-      alert("Failed to delete user. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to delete user",
+      });
     }
   };
 

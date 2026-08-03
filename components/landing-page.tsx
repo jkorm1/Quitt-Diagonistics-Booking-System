@@ -148,10 +148,10 @@ export default function LandingPage() {
                 <div className="flex items-center gap-3">
                   <Heart className="w-5 h-5 text-yellow-400 flex-shrink-0" />
                   <span className="font-semibold">Quality Care Guaranteed</span>
-                  <span>24/7 Online Booking</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                  <span className="font-semibold">24/7 Availability</span>
                 </div>
               </div>
             </div>

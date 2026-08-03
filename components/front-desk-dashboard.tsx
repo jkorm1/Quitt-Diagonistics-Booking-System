@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import GlassBookingWizard from "@/components/glass-booking-wizard";
+import { useToast } from "@/hooks/use-toast";
 
 interface Appointment {
   id: string;
@@ -47,6 +48,7 @@ export default function FrontDeskDashboard() {
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
   const [departments, setDepartments] = useState<any[]>([]);
   const [dateFilter, setDateFilter] = useState<string>("");
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchAppointments();
@@ -84,10 +86,24 @@ export default function FrontDeskDashboard() {
       }
       fetchAppointments();
       setSelectedAppointment(null);
+      toast({
+        variant: "default",
+        className: "bg-green-600 text-white border-green-600",
+        title: "Success",
+        description: `Appointment ${status.toLowerCase()} successfully`,
+      });
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to update appointment",
       );
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update appointment",
+      });
     }
   };
 

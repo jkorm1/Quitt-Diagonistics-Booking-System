@@ -348,20 +348,12 @@ export default function Footer() {
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2 border-b border-slate-700">
-                  <span className="text-slate-400">Monday - Friday</span>
-                  <span className="text-sky-400 font-medium">8 AM - 5 PM</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-slate-700">
-                  <span className="text-slate-400">Saturday</span>
-                  <span className="text-sky-400 font-medium">9 AM - 2 PM</span>
+                  <span className="text-slate-400">Monday - Saturday</span>
+                  <span className="text-sky-400 font-medium">24 Hours</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-slate-700">
                   <span className="text-slate-400">Sunday</span>
-                  <span className="text-sky-400 font-medium">Closed</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-400">Emergency</span>
-                  <span className="text-sky-400 font-medium">24/7</span>
+                  <span className="text-sky-400 font-medium">2 PM - 8 PM</span>
                 </div>
               </div>
             </div>

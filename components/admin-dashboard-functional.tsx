@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import GlassBookingWizard from "@/components/glass-booking-wizard";
 import UserManagement from "@/components/user-management";
+import { useToast } from "@/hooks/use-toast";
 
 interface Booking {
   id: string;
@@ -55,6 +56,7 @@ export default function AdminDashboardFunctional() {
   const [serviceTypeFilter, setServiceTypeFilter] = useState<string>("all");
   const [departmentFilter, setDepartmentFilter] = useState<number>(0);
   const [dateFilter, setDateFilter] = useState<string>("");
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchData();
@@ -132,13 +134,26 @@ export default function AdminDashboardFunctional() {
             b.id === bookingId ? { ...b, status: newStatus } : b,
           ),
         );
+        toast({
+          variant: "default",
+          className: "bg-green-600 text-white border-green-600",
+          title: "Success",
+          description: `Booking ${newStatus.toLowerCase()} successfully`,
+        });
       } else {
         const error = await res.json();
         throw new Error(error.error || "Failed to update booking status");
       }
     } catch (error) {
       console.error("[v0] Error updating booking:", error);
-      alert("Failed to update booking status. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update booking status",
+      });
     }
   };
 

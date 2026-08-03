@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { toast } from "@/hooks/use-toast";
 
 interface Service {
   id: number;
@@ -67,6 +68,7 @@ export default function GlassBookingWizard({
   const [loading, setLoading] = useState(false);
   const [expandedDeptId, setExpandedDeptId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
@@ -176,6 +178,12 @@ export default function GlassBookingWizard({
       }
 
       setSuccess(true);
+      toast({
+        variant: "default",
+        className: "bg-green-600 text-white border-green-600",
+        title: "Success",
+        description: "Booking confirmed successfully",
+      });
       setTimeout(() => {
         if (onClose) onClose();
       }, 2000);
@@ -183,6 +191,12 @@ export default function GlassBookingWizard({
       setError(
         error instanceof Error ? error.message : "Failed to create booking",
       );
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to create booking",
+      });
     } finally {
       setLoading(false);
     }
