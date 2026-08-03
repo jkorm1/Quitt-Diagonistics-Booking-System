@@ -602,11 +602,12 @@ export default function LandingPage() {
           <div className="relative w-full max-w-md">
             <button
               onClick={() => setShowLoginModal(false)}
-              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+              className="absolute -top-14 right-0 text-white hover:text-gray-300 transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2 backdrop-blur-sm border border-white/20"
+              aria-label="Close login modal"
             >
               <X className="w-8 h-8" />
             </button>
-            <Login />
+            <Login onClose={() => setShowLoginModal(false)} />
           </div>
         </div>
       )}
