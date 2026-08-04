@@ -184,9 +184,6 @@ export default function GlassBookingWizard({
         title: "Success",
         description: "Booking confirmed successfully",
       });
-      setTimeout(() => {
-        if (onClose) onClose();
-      }, 2000);
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to create booking",
@@ -236,6 +233,12 @@ export default function GlassBookingWizard({
           className="px-6 py-3 bg-blue-950 hover:bg-blue-900 text-white rounded-lg font-medium"
         >
           Book Another Appointment
+        </button>
+        <button
+          onClick={onClose}
+          className="px-6 py-3 border border-blue-200 text-blue-950 hover:bg-blue-50 rounded-lg font-medium"
+        >
+          Close
         </button>
       </div>
     );
