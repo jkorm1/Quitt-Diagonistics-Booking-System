@@ -19,6 +19,7 @@ import {
 import GlassBookingWizard from "@/components/glass-booking-wizard";
 import UserManagement from "@/components/user-management";
 import { useToast } from "@/hooks/use-toast";
+import { AdminDashboardSkeleton } from "@/components/skeletons";
 
 interface Booking {
   id: string;
@@ -226,14 +227,7 @@ export default function AdminDashboardFunctional() {
     });
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-blue-600 rounded-full animate-spin mb-4 mx-auto"></div>
-          <p className="text-blue-600 font-semibold">Loading Dashboard...</p>
-        </div>
-      </div>
-    );
+    return <AdminDashboardSkeleton />;
   }
 
   return (

@@ -17,6 +17,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+const toggleService = (id: string) => {
+  setOpenService((prev) => (prev === id ? null : id));
+};
+
 const LOCATIONS = [
   {
     name: "Ridge",
@@ -367,7 +371,6 @@ export default function Footer() {
                 <div className="flex justify-center items-center gap-8">
                   <div className="text-center">
                     <img
-                      src="/hra.png"
                       alt="Health Regulatory Authority"
                       className="h-16 w-auto object-contain mx-auto mb-2"
                     />
@@ -375,6 +378,7 @@ export default function Footer() {
                       Health Regulatory Authority
                     </p>
                   </div>
+                  src="/hra.png"
                   <div className="text-center">
                     <img
                       src="/apex.png"

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { Users, Plus, X } from "lucide-react";
+import { Users, Plus, X, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { UserTableRowSkeleton } from "@/components/skeletons";
 
 interface User {
   id: number;
@@ -14,6 +15,7 @@ interface User {
 
 export default function UserManagement() {
   const { user } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [userFormData, setUserFormData] = useState({
@@ -120,8 +122,39 @@ export default function UserManagement() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-blue-900">User Management</h2>
+          <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
+        </div>
+
+        <div className="hospital-card p-6 border-2 border-blue-200">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b-2 border-blue-200">
+                  <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                    Username
+                  </th>
+                  <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                    Role
+                  </th>
+                  <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                    Created At
+                  </th>
+                  <th className="text-left px-4 py-3 text-blue-900 font-bold">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <UserTableRowSkeleton />
+                <UserTableRowSkeleton />
+                <UserTableRowSkeleton />
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     );
   }
@@ -252,18 +285,31 @@ export default function UserManagement() {
                 <label className="block text-sm font-medium text-blue-900 mb-2">
                   Password
                 </label>
-                <input
-                  type="password"
-                  value={userFormData.password}
-                  onChange={(e) =>
-                    setUserFormData({
-                      ...userFormData,
-                      password: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={userFormData.password}
+                    onChange={(e) =>
+                      setUserFormData({
+                        ...userFormData,
+                        password: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-900"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div>

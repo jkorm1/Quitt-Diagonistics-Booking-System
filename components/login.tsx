@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth, type UserType } from "@/lib/auth-context";
-import { Mail, Lock, LogIn, Heart, User, X } from "lucide-react";
+import { Mail, Lock, LogIn, Heart, User, X, Eye, EyeOff } from "lucide-react";
 import "@/app/globals.css";
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,6 +13,8 @@ export default function Login({ onClose }: { onClose?: () => void }) {
   const [selectedType, setSelectedType] = useState<UserType>("admin");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -56,7 +58,7 @@ export default function Login({ onClose }: { onClose?: () => void }) {
   const selectedIndex = userTypes.findIndex((t) => t.id === selectedType);
 
   return (
-    <div className="liquid-stage min-h-screen flex items-center justify-center p-4">
+    <div className="liquid-stage relative flex items-center justify-center p-4">
       {/* Ambient flowing background */}
       <div className="liquid-blob liquid-blob-1" />
       <div className="liquid-blob liquid-blob-2" />
@@ -64,18 +66,18 @@ export default function Login({ onClose }: { onClose?: () => void }) {
       <div className="liquid-blob liquid-blob-4" />
 
       <div className="relative w-full max-w-md">
-        {/* Close Button */}
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="absolute -top-14 right-0 text-black hover:text-gray-300 transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2 backdrop-blur-sm border border-white/20"
-            aria-label="Close login"
-          >
-            <X className="w-8 h-8" />
-          </button>
-        )}
+        <div className="liquid-card relative p-8">
+          {/* Close Button — the only one, inside the card */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-blue-900/70 hover:text-blue-900 transition-colors bg-white/50 hover:bg-white/80 rounded-full p-2 backdrop-blur-sm border border-white/60 shadow-sm"
+              aria-label="Close login"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
 
-        <div className="liquid-card p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -121,13 +123,24 @@ export default function Login({ onClose }: { onClose?: () => void }) {
             <div className="relative">
               <Lock className="absolute left-3 top-3.5 w-5 h-5 text-blue-600 pointer-events-none" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="liquid-input w-full pl-10"
+                className="liquid-input w-full pl-10 pr-10"
                 disabled={isLoading}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-900"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
             </div>
 
             {/* User Type Selection — sliding segmented control */}
@@ -161,14 +174,10 @@ export default function Login({ onClose }: { onClose?: () => void }) {
             </button>
           </form>
 
-          {/* Demo Notice */}
+          {/* Company Slogan */}
           <div className="mt-6 p-4 bg-white/40 backdrop-blur rounded-2xl border border-white/50">
-            <p className="text-xs text-gray-600 text-center">
-              Demo credentials:
-              <br />
-              <strong>Admin:</strong> username: admin, password: admin123
-              <br />
-              <strong>Front Desk:</strong> username: staff, password: staff123
+            <p className="text-xs text-gray-600 text-center italic">
+              "Quitt Diagnostics — Quality Equipments, Trusted Report."
             </p>
           </div>
         </div>

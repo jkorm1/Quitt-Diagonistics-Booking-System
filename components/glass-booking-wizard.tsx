@@ -15,6 +15,10 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "@/hooks/use-toast";
+import {
+  DepartmentCardSkeleton,
+  TimeSlotsSkeleton,
+} from "@/components/skeletons";
 
 interface Service {
   id: number;
@@ -66,6 +70,7 @@ export default function GlassBookingWizard({
   const [departments, setDepartments] = useState<Department[]>([]);
   const [availableSlots, setAvailableSlots] = useState<SlotInfo[]>([]);
   const [loading, setLoading] = useState(false);
+  const [departmentsLoading, setDepartmentsLoading] = useState(true);
   const [expandedDeptId, setExpandedDeptId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,6 +81,7 @@ export default function GlassBookingWizard({
   }, []);
 
   const fetchDepartments = async () => {
+    setDepartmentsLoading(true);
     try {
       const res = await fetch("/api/departments?includeServices=true");
       if (!res.ok) throw new Error("Failed to fetch departments");
@@ -85,6 +91,8 @@ export default function GlassBookingWizard({
       setError(
         error instanceof Error ? error.message : "Failed to fetch departments",
       );
+    } finally {
+      setDepartmentsLoading(false);
     }
   };
 
@@ -299,132 +307,145 @@ export default function GlassBookingWizard({
       {/* Step 1: Department Selection */}
       {step === 1 && (
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-blue-950">Select Department</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {departments.map((dept, index) => (
-              <div
-                key={dept.id}
-                className={`relative group ${expandedDeptId === dept.id ? "z-50" : "z-0"}`}
-                style={{ zIndex: expandedDeptId === dept.id ? 50 : index + 1 }}
-                onMouseEnter={() => {
-                  // Set expanded state on hover
-                  setExpandedDeptId(dept.id);
-                }}
-                onMouseLeave={() => {
-                  // Clear expanded state on mouse leave
-                  setExpandedDeptId(null);
-                }}
-              >
-                <button
-                  onClick={() => {
-                    handleDeptSelect(dept.id);
-                    // Toggle expanded state for mobile
-                    if (expandedDeptId === dept.id) {
-                      setExpandedDeptId(null);
-                    } else {
+          {departmentsLoading ? (
+            <DepartmentCardSkeleton />
+          ) : (
+            <>
+              <h2 className="text-xl font-bold text-blue-950">
+                Select Department
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {departments.map((dept, index) => (
+                  <div
+                    key={dept.id}
+                    className={`relative group ${expandedDeptId === dept.id ? "z-50" : "z-0"}`}
+                    style={{
+                      zIndex: expandedDeptId === dept.id ? 50 : index + 1,
+                    }}
+                    onMouseEnter={() => {
+                      // Set expanded state on hover
                       setExpandedDeptId(dept.id);
-                    }
-                  }}
-                  className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
-                    selectedDept === dept.id
-                      ? "border-blue-950 bg-blue-50"
-                      : "border-blue-200 hover:border-blue-400 bg-white"
-                  }`}
-                >
-                  <h3 className="font-bold text-blue-950 mb-2">{dept.name}</h3>
-                  <p className="text-gray-600 text-sm">
-                    {dept.services && dept.services.length > 0
-                      ? `${dept.services.length} services available`
-                      : dept.allows_home_service
-                        ? "Available for home service"
-                        : "In-clinic service only"}
-                  </p>
-                  {/* Show selected service if one is selected for this department */}
-                  {selectedDept === dept.id && selectedService && (
-                    <div className="mt-2 pt-2 border-t border-blue-200">
-                      <p className="text-sm font-medium text-green-600">
-                        Selected:{" "}
-                        {
-                          dept.services?.find((s) => s.id === selectedService)
-                            ?.name
+                    }}
+                    onMouseLeave={() => {
+                      // Clear expanded state on mouse leave
+                      setExpandedDeptId(null);
+                    }}
+                  >
+                    <button
+                      onClick={() => {
+                        handleDeptSelect(dept.id);
+                        // Toggle expanded state for mobile
+                        if (expandedDeptId === dept.id) {
+                          setExpandedDeptId(null);
+                        } else {
+                          setExpandedDeptId(dept.id);
                         }
+                      }}
+                      className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
+                        selectedDept === dept.id
+                          ? "border-blue-950 bg-blue-50"
+                          : "border-blue-200 hover:border-blue-400 bg-white"
+                      }`}
+                    >
+                      <h3 className="font-bold text-blue-950 mb-2">
+                        {dept.name}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {dept.services && dept.services.length > 0
+                          ? `${dept.services.length} services available`
+                          : dept.allows_home_service
+                            ? "Available for home service"
+                            : "In-clinic service only"}
                       </p>
-                    </div>
-                  )}
-                </button>
+                      {/* Show selected service if one is selected for this department */}
+                      {selectedDept === dept.id && selectedService && (
+                        <div className="mt-2 pt-2 border-t border-blue-200">
+                          <p className="text-sm font-medium text-green-600">
+                            Selected:{" "}
+                            {
+                              dept.services?.find(
+                                (s) => s.id === selectedService,
+                              )?.name
+                            }
+                          </p>
+                        </div>
+                      )}
+                    </button>
 
-                {/* Services dropdown - show on hover for desktop, on click for mobile */}
-                <div
-                  className={`absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 transition-all duration-200 ${
-                    // Show on hover for desktop, or if expanded for mobile
-                    expandedDeptId === dept.id
-                      ? "opacity-100 visible"
-                      : "opacity-0 invisible"
-                  }`}
-                  style={{ zIndex: 100 }}
-                  onMouseEnter={() => {
-                    // Keep dropdown open when hovering over it
-                    setExpandedDeptId(dept.id);
-                  }}
-                  onMouseLeave={() => {
-                    // Close dropdown when mouse leaves
-                    setExpandedDeptId(null);
-                  }}
-                >
-                  <div className="p-2">
-                    <p className="text-xs font-semibold text-gray-500 mb-2 px-2">
-                      Select a service:
-                    </p>
-                    {dept.services && dept.services.length > 0 ? (
-                      dept.services.map((service) => (
-                        <button
-                          key={service.id}
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent the department button click event
-                            setSelectedDept(dept.id);
-                            setSelectedService(service.id);
-                            setExpandedDeptId(null); // Close the dropdown after selection
-                          }}
-                          className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                            selectedService === service.id
-                              ? "bg-blue-50 text-blue-950 font-medium"
-                              : "text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          {service.name}
-                        </button>
-                      ))
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent the department button click event
-                          setSelectedDept(dept.id);
-                          setSelectedService(null); // No service to select
-                          setExpandedDeptId(null); // Close the dropdown after selection
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                          selectedDept === dept.id && !selectedService
-                            ? "bg-blue-50 text-blue-950 font-medium"
-                            : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        General Service
-                      </button>
-                    )}
+                    {/* Services dropdown - show on hover for desktop, on click for mobile */}
+                    <div
+                      className={`absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 transition-all duration-200 ${
+                        // Show on hover for desktop, or if expanded for mobile
+                        expandedDeptId === dept.id
+                          ? "opacity-100 visible"
+                          : "opacity-0 invisible"
+                      }`}
+                      style={{ zIndex: 100 }}
+                      onMouseEnter={() => {
+                        // Keep dropdown open when hovering over it
+                        setExpandedDeptId(dept.id);
+                      }}
+                      onMouseLeave={() => {
+                        // Close dropdown when mouse leaves
+                        setExpandedDeptId(null);
+                      }}
+                    >
+                      <div className="p-2">
+                        <p className="text-xs font-semibold text-gray-500 mb-2 px-2">
+                          Select a service:
+                        </p>
+                        {dept.services && dept.services.length > 0 ? (
+                          dept.services.map((service) => (
+                            <button
+                              key={service.id}
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent the department button click event
+                                setSelectedDept(dept.id);
+                                setSelectedService(service.id);
+                                setExpandedDeptId(null); // Close the dropdown after selection
+                              }}
+                              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                                selectedService === service.id
+                                  ? "bg-blue-50 text-blue-950 font-medium"
+                                  : "text-gray-700 hover:bg-gray-50"
+                              }`}
+                            >
+                              {service.name}
+                            </button>
+                          ))
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent the department button click event
+                              setSelectedDept(dept.id);
+                              setSelectedService(null); // No service to select
+                              setExpandedDeptId(null); // Close the dropdown after selection
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                              selectedDept === dept.id && !selectedService
+                                ? "bg-blue-50 text-blue-950 font-medium"
+                                : "text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            General Service
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="flex justify-end">
-            <button
-              onClick={() => setStep(2)}
-              disabled={!selectedDept}
-              className="px-6 py-3 bg-blue-950 hover:bg-blue-900 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium"
-            >
-              Next
-            </button>
-          </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setStep(2)}
+                  disabled={!selectedDept}
+                  className="px-6 py-3 bg-blue-950 hover:bg-blue-900 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium"
+                >
+                  Next
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -449,34 +470,38 @@ export default function GlassBookingWizard({
               />
             </div>
 
-            {selectedDate && availableSlots.length > 0 && (
+            {selectedDate && (
               <div>
                 <label className="block text-sm font-medium text-blue-950 mb-2">
                   Available Times
                 </label>
-                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                  {availableSlots.map((slot) => (
-                    <button
-                      key={slot.time}
-                      onClick={() =>
-                        slot.available && setSelectedTime(slot.time)
-                      }
-                      disabled={!slot.available}
-                      className={`p-3 rounded-lg border text-sm font-medium transition-all ${
-                        selectedTime === slot.time
-                          ? "border-blue-950 bg-blue-50 text-blue-950"
-                          : slot.available
-                            ? "border-blue-200 hover:border-blue-400 bg-white text-gray-700"
-                            : "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
-                      }`}
-                      title={
-                        slot.available ? "Select this time" : "Fully Booked"
-                      }
-                    >
-                      {slot.time}
-                    </button>
-                  ))}
-                </div>
+                {availableSlots.length === 0 ? (
+                  <TimeSlotsSkeleton />
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                    {availableSlots.map((slot) => (
+                      <button
+                        key={slot.time}
+                        onClick={() =>
+                          slot.available && setSelectedTime(slot.time)
+                        }
+                        disabled={!slot.available}
+                        className={`p-3 rounded-lg border text-sm font-medium transition-all ${
+                          selectedTime === slot.time
+                            ? "border-blue-950 bg-blue-50 text-blue-950"
+                            : slot.available
+                              ? "border-blue-200 hover:border-blue-400 bg-white text-gray-700"
+                              : "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                        }`}
+                        title={
+                          slot.available ? "Select this time" : "Fully Booked"
+                        }
+                      >
+                        {slot.time}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
